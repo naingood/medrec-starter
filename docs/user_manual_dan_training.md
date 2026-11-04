@@ -19,7 +19,7 @@ Sebelum menggunakan `medrec-starter`, pastikan komputer Anda telah terpasang:
 Cukup buka terminal / Command Prompt Anda dan jalankan perintah:
 
 ```bash
-npx create-medrec-app nama-klinik-saya
+npx create-medrec-starter nama-klinik-saya
 ```
 
 **Alur Wizard Terminal:**
@@ -95,7 +95,7 @@ Modul ini dirancang untuk dosen / fasilitator praktikum Informatika Kesehatan da
 |                  SILABUS PRAKTIKUM MEDREC-STARTER (120 Menit)           |
 +-------------------------------------------------------------------------+
 | Sesi 1: Setup & Pengenalan Arsitektur (30 Menit)                        |
-|   - Instalasi via CLI Wizard (npx create-medrec-app)                    |
+|   - Instalasi via CLI Wizard (npx create-medrec-starter)                    |
 |   - Eksplorasi folder project & SQLite (database.sqlite)                |
 |                                                                         |
 | Sesi 2: Simulasi Alur Rekam Medis Elektronik (45 Menit)                 |

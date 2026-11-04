@@ -5,7 +5,7 @@ Boilerplate Sistem Informasi Rekam Medis (SIMRS sederhana) untuk mahasiswa RMIK 
 ## Instalasi
 
 ```bash
-npx create-medrec-app nama-klinik-saya
+npx create-medrec-starter nama-klinik-saya
 cd nama-klinik-saya
 npm install
 npm start

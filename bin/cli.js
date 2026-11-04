@@ -15,7 +15,7 @@ function ask(q, def) {
 async function main() {
   const projectName = process.argv[2];
   if (!projectName) {
-    console.error('Usage: npx create-medrec-app <project-name>');
+    console.error('Usage: npx create-medrec-starter <project-name>');
     process.exit(1);
   }
   const target = path.resolve(process.cwd(), projectName);

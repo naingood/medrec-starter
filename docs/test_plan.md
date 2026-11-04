@@ -6,7 +6,7 @@ Dokumen ini memuat skenario perencanaan pengujian (*Test Cases*) untuk memastika
 
 ## 📑 Ringkasan Kategori Pengujian
 
-1. **CLI Wizard Test (CLI)** – Pengujian instalasi interaktif via terminal (`npx create-medrec-app`).
+1. **CLI Wizard Test (CLI)** – Pengujian instalasi interaktif via terminal (`npx create-medrec-starter`).
 2. **Database & Schema Test (DB)** – Pengujian inisialisasi tabel SQLite & seed data bawaan.
 3. **Middleware & Security Test (SEC)** – Pengujian fitur RBAC (Hak Akses) & Mode Maintenance.
 4. **Backend API Test (API)** – Pengujian endpoint RESTful CRUD.
@@ -20,7 +20,7 @@ Dokumen ini memuat skenario perencanaan pengujian (*Test Cases*) untuk memastika
 
 | Test ID | Item yang Diuji | Langkah Pengujian | Ekspektasi Hasil | Priority | Status |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| **CLI-01** | Inisialisasi Proyek Baru | Jalankan `npx create-medrec-app my-clinic` | Folder `my-clinic` berhasil dibuat beserta seluruh struktur folder internal. | High | Pending |
+| **CLI-01** | Inisialisasi Proyek Baru | Jalankan `npx create-medrec-starter my-clinic` | Folder `my-clinic` berhasil dibuat beserta seluruh struktur folder internal. | High | Pending |
 | **CLI-02** | Validasi Folder Duplikat | Jalankan CLI pada nama folder yang sudah ada | CLI menghentikan proses dan menampilkan pesan peringatan folder sudah ada. | Medium | Pending |
 | **CLI-03** | Prompt Input Interaktif | Masukkan nama klinik khusus (contoh: "Klinik Sehat Pertiwi") | Nama klinik berhasil di-*inject* otomatis ke tabel `config` database SQLite. | High | Pending |
 | **CLI-04** | Auto Migration SQLite | Periksa direktori proyek setelah CLI selesai | File `database.sqlite` tercipta dan terisi tabel dari `schema.sql`. | High | Pending |
