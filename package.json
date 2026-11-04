@@ -1,0 +1,45 @@
+{
+  "name": "create-medrec-app",
+  "version": "1.0.1",
+  "description": "Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK",
+  "main": "server.js",
+  "bin": {
+    "create-medrec-app": "bin/cli.js"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "node database/migrate.js",
+    "test": "node tests/run.js"
+  },
+  "keywords": [
+    "rekam-medis",
+    "health-informatics",
+    "sqlite",
+    "express",
+    "boilerplate"
+  ],
+  "author": "Tim MedRec Starter",
+  "license": "MIT",
+  "files": [
+    "bin/",
+    "public/",
+    "database/",
+    "server.js",
+    "README.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/medrec-starter.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "dotenv": "^16.4.5"
+  }
+}
