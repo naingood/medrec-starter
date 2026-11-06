@@ -2,8 +2,20 @@ let currentUser = null;
 let config = {};
 let currentTab = 'home';
 
+function apiBase() {
+  if (config && config.endpoint_active === '1' && config.base_url_endpoint) return String(config.base_url_endpoint).replace(/\/$/, '');
+  return '';
+}
 async function api(url, opts = {}) {
-  const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
+  const base = String(url).startsWith('/api/plugins/settings') ? '' : apiBase();
+  let res;
+  try {
+    res = await fetch(base + url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
+  } catch (e) {
+    if (base) alert('Data belum tersedia');
+    throw e;
+  }
+  if (base && !res.ok) alert('Data belum tersedia');
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
   return data;
@@ -23,15 +35,37 @@ async function init() {
     const c = await api('/api/config');
     config = c.config || {};
   } catch (e) {}
+  // Load settings (app name, endpoint) if available
+  try {
+    const s = await api('/api/plugins/settings');
+    const d = s.data || {};
+    if (d.app_name) config.app_name = d.app_name;
+    if (d.base_url_endpoint != null) config.base_url_endpoint = d.base_url_endpoint;
+    if (d.endpoint_active != null) config.endpoint_active = d.endpoint_active;
+  } catch (e) {}
   const name = config.app_name || 'MedRec Starter';
   document.getElementById('clinicName').textContent = name;
   document.getElementById('clinicNameM').textContent = name;
   document.getElementById('userInfo').textContent = currentUser.nama_lengkap + ' (' + currentUser.role + ')';
   document.getElementById('userInfoM').textContent = currentUser.nama_lengkap;
-  switchTab('home');
+  if (currentUser.role === 'superadmin') {
+    document.getElementById('navModularDesktop')?.classList.remove('hidden');
+    document.getElementById('navModularMobile')?.classList.remove('hidden');
+    document.getElementById('navDokumentasiDesktop')?.classList.remove('hidden');
+    document.getElementById('navDokumentasiMobile')?.classList.remove('hidden');
+    document.getElementById('navAddonsDesktop')?.classList.remove('hidden');
+    // Sembunyikan semua screen aplikasi (home/pasien/icd/daftar) untuk superadmin
+    ['home','pasien','icd','daftar'].forEach((t) => {
+      document.querySelectorAll('[data-tab="' + t + '"]').forEach((el) => el.classList.add('hidden'));
+    });
+  }
+  await loadPluginHost();
+  await renderBottomNav();
+  switchTab(currentUser.role === 'superadmin' ? 'modular' : 'home');
 }
 
 function switchTab(tab) {
+  if (currentUser && currentUser.role === 'superadmin' && ['home','pasien','icd','daftar'].includes(tab)) tab = 'modular';
   currentTab = tab;
   // highlight
   document.querySelectorAll('.navbtn').forEach(b => {
@@ -50,253 +84,166 @@ function switchTab(tab) {
 }
 
 async function renderView(tab) {
+  if (currentUser && currentUser.role === 'superadmin' && ['home','pasien','icd','daftar'].includes(tab)) {
+    tab = 'modular'; currentTab = 'modular';
+  }
   const vc = document.getElementById('viewContainer');
   try {
-    if (tab === 'home') await renderHome(vc);
-    else if (tab === 'pasien') await renderPasien(vc);
-    else if (tab === 'icd') await renderICD(vc);
-    else if (tab === 'daftar') await renderDaftar(vc);
-    else if (tab === 'akun') await renderAkun(vc);
+    if (tab === 'modular') await renderModular(vc);
+    else if (tab === 'dokumentasi') await renderDokumentasi(vc);
+    else if (tab === 'addons') await renderModule('addons', vc);
+    else if (tab.startsWith('plugin:')) await renderPluginView(tab.slice(7), vc);
+    else await renderModule(tab, vc);
+    trackPageView(tab).catch(()=>{});
   } catch (e) {
     vc.innerHTML = `<div class="text-red-600">Error: ${esc(e.message)}</div>`;
   }
 }
 
-async function renderHome(vc) {
-  const stats = await api('/api/stats');
-  const enc = await api('/api/encounters');
-  const active = enc.data.filter(e => e.status === 'Pemeriksaan');
-  vc.innerHTML = `
-    <h2 class="text-2xl font-bold mb-4">Beranda</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white rounded-xl p-5 shadow-sm"><div class="text-gray-500 text-sm">Total Pasien</div><div class="text-3xl font-bold text-blue-600">${stats.totalPasien}</div></div>
-      <div class="bg-white rounded-xl p-5 shadow-sm"><div class="text-gray-500 text-sm">Kunjungan Hari Ini</div><div class="text-3xl font-bold text-green-600">${stats.kunjunganHariIni}</div></div>
-      <div class="bg-white rounded-xl p-5 shadow-sm"><div class="text-gray-500 text-sm">Menunggu Pemeriksaan</div><div class="text-3xl font-bold text-amber-600">${stats.aktif}</div></div>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm p-5">
-      <h3 class="font-semibold mb-3">Pasien Menunggu Pemeriksaan</h3>
-      ${active.length === 0 ? '<div class="text-gray-400 text-sm">Tidak ada antrian.</div>' :
-        `<ul class="divide-y">${active.map(e => `
-          <li class="py-3 flex items-center justify-between">
-            <div>
-              <div class="font-medium">${esc(e.nama_pasien)} <span class="text-xs text-gray-400">(${esc(e.no_rm)})</span></div>
-              <div class="text-sm text-gray-500">Keluhan: ${esc(e.keluhan_utama)}</div>
-            </div>
-            <button onclick="switchTab('daftar')" class="text-sm text-blue-600">Lihat</button>
-          </li>`).join('')}</ul>`}
-    </div>`;
+let pluginMenusLoaded = false;
+async function renderModule(slug, vc) {
+  const name = 'Module_' + slug.replace(/[^a-zA-Z0-9]/g, '_');
+  let tries = 0;
+  while (!window[name] && tries < 30) { await new Promise(r => setTimeout(r, 100)); tries++; }
+  const m = window[name];
+  if (m && typeof m.render === 'function') { await m.render(vc); return; }
+  vc.innerHTML = '<div class="text-red-600">Modul ' + slug + ' tidak tersedia.</div>';
 }
 
-async function renderPasien(vc) {
-  vc.innerHTML = `
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold">Data Pasien</h2>
-      ${currentUser.role !== 'dokter' ? '<button onclick="showAddPatient()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">+ Tambah Pasien</button>' : ''}
-    </div>
-    <div class="mb-3"><input id="searchPasien" placeholder="Cari nama / NIK / No RM..." class="w-full border border-gray-300 rounded-lg px-3 py-2" oninput="clearTimeout(window._pst); window._pst=setTimeout(searchPasien,300)" /></div>
-    <div id="pasienList" class="bg-white rounded-xl shadow-sm"></div>`;
-  await loadPasien('');
+
+async function renderBottomNav() {
+  const nav = document.getElementById('bottomNav');
+  if (!nav) return;
+  let menus = [];
+  try { const d = await api('/api/plugins/menus'); menus = d.data || []; } catch (e) {}
+  const homeBtn = '<button onclick="switchTab(\'home\')" class="mobnav flex flex-col items-center text-gray-500" data-tab="home"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 00-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg><span class="text-xs mt-1">Beranda</span></button>';
+  const pluginBtns = menus.map(m => '<button onclick="switchTab(\'plugin:' + m.slug + '\')" class="mobnav flex flex-col items-center text-gray-500" data-tab="plugin:' + m.slug + '"><span class="text-xl">' + (m.icon || 'P') + '</span><span class="text-xs mt-1">' + esc(m.label || m.slug) + '</span></button>').join('');
+  nav.innerHTML = homeBtn + pluginBtns;
+  document.querySelectorAll('.mobnav').forEach(b => { const active = b.dataset.tab === currentTab; b.classList.toggle('text-blue-600', active); b.classList.toggle('text-gray-500', !active); });
 }
 
-let searchTimer;
-function debounce(fn, ms) { let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }; }
-async function searchPasien() {
-  const q = document.getElementById('searchPasien').value;
-  await loadPasien(q);
-}
-
-async function loadPasien(q) {
-  const data = await api('/api/patients?search=' + encodeURIComponent(q || ''));
-  const el = document.getElementById('pasienList');
-  if (!data.data.length) { el.innerHTML = '<div class="p-5 text-gray-400">Tidak ada data.</div>'; return; }
-  el.innerHTML = `
-    <table class="w-full text-sm">
-      <thead class="bg-gray-50"><tr>
-        <th class="text-left p-3">No RM</th><th class="text-left p-3">Nama</th><th class="text-left p-3">NIK</th><th class="text-left p-3">JK</th><th class="text-left p-3">Tgl Lahir</th>
-      </tr></thead>
-      <tbody>${data.data.map(p => `
-        <tr class="border-t">
-          <td class="p-3 font-mono">${esc(p.no_rm)}</td>
-          <td class="p-3">${esc(p.nama_lengkap)}</td>
-          <td class="p-3 font-mono">${esc(p.nik)}</td>
-          <td class="p-3">${esc(p.jenis_kelamin)}</td>
-          <td class="p-3">${esc(p.tanggal_lahir)}</td>
-        </tr>`).join('')}</tbody>
-    </table>`;
-}
-
-function showAddPatient() {
-  const modal = document.createElement('div');
-  modal.className = 'fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4';
-  modal.innerHTML = `
-    <div class="bg-white rounded-xl w-full max-w-lg p-6">
-      <h3 class="font-bold text-lg mb-4">Tambah Pasien Baru</h3>
-      <form id="addPatientForm" class="space-y-3">
-        <input name="nama_lengkap" placeholder="Nama Lengkap" required class="w-full border rounded-lg px-3 py-2" />
-        <input name="nik" placeholder="NIK (16 digit)" required pattern="\\d{16}" class="w-full border rounded-lg px-3 py-2" />
-        <input name="tanggal_lahir" type="date" required class="w-full border rounded-lg px-3 py-2" />
-        <select name="jenis_kelamin" required class="w-full border rounded-lg px-3 py-2">
-          <option value="">Jenis Kelamin</option><option value="L">Laki-laki</option><option value="P">Perempuan</option>
-        </select>
-        <textarea name="alamat" placeholder="Alamat" required class="w-full border rounded-lg px-3 py-2"></textarea>
-        <div id="addErr" class="text-red-600 text-sm hidden"></div>
-        <div class="flex gap-2 justify-end">
-          <button type="button" onclick="this.closest('.fixed').remove()" class="px-4 py-2 rounded-lg border">Batal</button>
-          <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white">Simpan</button>
-        </div>
-      </form>
-    </div>`;
-  document.body.appendChild(modal);
-  modal.querySelector('#addPatientForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const body = Object.fromEntries(fd.entries());
-    const err = modal.querySelector('#addErr');
-    err.classList.add('hidden');
-    try {
-      const r = await api('/api/patients', { method: 'POST', body: JSON.stringify(body) });
-      modal.remove();
-      alert('Pasien tersimpan. No RM: ' + r.no_rm);
-      await loadPasien(document.getElementById('searchPasien')?.value || '');
-    } catch (ex) {
-      err.textContent = ex.message;
-      err.classList.remove('hidden');
+async function loadPluginHost() {
+  try {
+    const menus = await api('/api/plugins/menus');
+    const scripts = await api('/api/plugins/client-scripts');
+    // load client scripts once
+    for (const s of (scripts.data || [])) {
+      if (!document.querySelector('script[data-plugin="' + s.slug + '"]')) {
+        const sc = document.createElement('script');
+        sc.src = s.src;
+        sc.dataset.plugin = s.slug;
+        document.head.appendChild(sc);
+      }
     }
-  });
+    // inject menu buttons (desktop sidebar) if not exists
+    const sidebarNav = document.querySelector('aside nav');
+    for (const m of (menus.data || [])) {
+      const id = 'pluginNav_' + m.slug;
+      if (!document.getElementById(id)) {
+        const btn = document.createElement('button');
+        btn.id = id;
+        btn.className = 'navbtn w-full text-left px-3 py-2 rounded-lg hover:bg-blue-50';
+        btn.dataset.tab = 'plugin:' + m.slug;
+        btn.textContent = (m.icon ? m.icon + ' ' : '') + (m.label || m.slug);
+        btn.onclick = () => switchTab('plugin:' + m.slug);
+        sidebarNav && sidebarNav.appendChild(btn);
+      }
+    }
+    // Pastikan tombol Settings selalu di paling bawah (setelah injeksi menu plugin)
+    const settingsBtn = document.getElementById('navSettingsDesktop') || document.querySelector('[data-tab="settings"]');
+    const nav = document.querySelector('aside nav');
+    if (settingsBtn && nav && nav.lastElementChild !== settingsBtn) {
+      nav.appendChild(settingsBtn);
+    }
+    pluginMenusLoaded = true;
+  } catch (e) {
+    // plugin host optional; ignore if not superadmin/no access
+  }
 }
 
-async function renderICD(vc) {
-  vc.innerHTML = `
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-2xl font-bold">Pencarian ICD-10</h2>
-      ${currentUser.role === 'admin' ? '<button onclick="showAddICD()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">+ Tambah Kode</button>' : ''}
-    </div>
-    <div class="mb-3"><input id="searchICD" placeholder="Cari kode atau nama penyakit..." class="w-full border border-gray-300 rounded-lg px-3 py-2" oninput="clearTimeout(window._ist); window._ist=setTimeout(()=>loadICD(document.getElementById('searchICD').value),300)" /></div>
-    <div id="icdList" class="bg-white rounded-xl shadow-sm"></div>`;
-  await loadICD('');
-}
-
-async function loadICD(q) {
-  const data = await api('/api/icd10?search=' + encodeURIComponent(q || ''));
-  const el = document.getElementById('icdList');
-  if (!data.data.length) { el.innerHTML = '<div class="p-5 text-gray-400">Tidak ada data.</div>'; return; }
-  el.innerHTML = `
-    <table class="w-full text-sm">
-      <thead class="bg-gray-50"><tr><th class="text-left p-3">Kode</th><th class="text-left p-3">Nama Penyakit</th></tr></thead>
-      <tbody>${data.data.map(i => `<tr class="border-t"><td class="p-3 font-mono font-semibold">${esc(i.code)}</td><td class="p-3">${esc(i.name_id)}</td></tr>`).join('')}</tbody>
-    </table>`;
-}
-
-function showAddICD() {
-  const code = prompt('Kode ICD-10 (contoh: J02.9):');
-  if (!code) return;
-  const name = prompt('Nama penyakit (Bahasa Indonesia):');
-  if (!name) return;
-  api('/api/icd10', { method: 'POST', body: JSON.stringify({ code, name_id: name }) })
-    .then(() => { alert('Kode tersimpan.'); loadICD(document.getElementById('searchICD').value); })
-    .catch(e => alert(e.message));
-}
-
-async function renderDaftar(vc) {
-  const patients = await api('/api/patients');
-  const encounters = await api('/api/encounters');
-  vc.innerHTML = `
-    <h2 class="text-2xl font-bold mb-4">Pendaftaran Kunjungan</h2>
-    ${currentUser.role !== 'dokter' ? `
-    <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
-      <h3 class="font-semibold mb-3">Daftarkan Kunjungan Baru</h3>
-      <form id="regForm" class="space-y-3">
-        <select name="patient_id" required class="w-full border rounded-lg px-3 py-2">
-          <option value="">-- Pilih Pasien --</option>
-          ${patients.data.map(p => `<option value="${p.id}">${esc(p.no_rm)} - ${esc(p.nama_lengkap)}</option>`).join('')}
-        </select>
-        <textarea name="keluhan_utama" placeholder="Keluhan utama (anamnesis)" required class="w-full border rounded-lg px-3 py-2"></textarea>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">Daftarkan</button>
-        <div id="regErr" class="text-red-600 text-sm hidden"></div>
-      </form>
-    </div>` : ''}
-    <div class="bg-white rounded-xl shadow-sm p-5">
-      <h3 class="font-semibold mb-3">Riwayat Kunjungan</h3>
-      <div id="encList"></div>
-    </div>`;
-  renderEncounters(encounters.data);
-  const form = document.getElementById('regForm');
-  if (form) form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    const body = Object.fromEntries(fd.entries());
-    const err = document.getElementById('regErr');
-    err.classList.add('hidden');
-    try {
-      await api('/api/encounters', { method: 'POST', body: JSON.stringify(body) });
-      alert('Kunjungan terdaftar.');
-      switchTab('daftar');
-    } catch (ex) { err.textContent = ex.message; err.classList.remove('hidden'); }
-  });
-}
-
-function renderEncounters(data) {
-  const el = document.getElementById('encList');
-  if (!data.length) { el.innerHTML = '<div class="text-gray-400">Belum ada kunjungan.</div>'; return; }
-  el.innerHTML = `
-    <table class="w-full text-sm">
-      <thead class="bg-gray-50"><tr><th class="text-left p-3">Tanggal</th><th class="text-left p-3">Pasien</th><th class="text-left p-3">Keluhan</th><th class="text-left p-3">Diagnosa</th><th class="text-left p-3">Status</th><th class="text-left p-3">Aksi</th></tr></thead>
-      <tbody>${data.map(e => `
-        <tr class="border-t">
-          <td class="p-3 text-xs">${esc(e.tanggal_kunjungan)}</td>
-          <td class="p-3">${esc(e.nama_pasien)}</td>
-          <td class="p-3">${esc(e.keluhan_utama)}</td>
-          <td class="p-3">${esc(e.diagnosa_icd_code || '-')} ${e.diagnosa_nama ? '('+esc(e.diagnosa_nama)+')' : ''}</td>
-          <td class="p-3"><span class="px-2 py-1 rounded text-xs ${e.status==='Selesai'?'bg-green-100 text-green-700':e.status==='Dirujuk'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}">${esc(e.status)}</span></td>
-          <td class="p-3">${(currentUser.role==='admin'||currentUser.role==='dokter') && e.status==='Pemeriksaan' ? `<button onclick="showDiagnosa(${e.id})" class="text-blue-600 text-xs">Periksa</button>` : ''}</td>
-        </tr>`).join('')}</tbody>
-    </table>`;
-}
-
-function showDiagnosa(id) {
-  const code = prompt('Kode ICD-10 (contoh: J02.9):');
-  if (code === null) return;
-  const tindakan = prompt('Catatan tindakan/terapi:');
-  if (tindakan === null) return;
-  const status = confirm('Tandai Selesai? (Cancel = Dirujuk)') ? 'Selesai' : 'Dirujuk';
-  api('/api/encounters/' + id, { method: 'PUT', body: JSON.stringify({ diagnosa_icd_code: code, tindakan, status }) })
-    .then(() => { alert('Tersimpan.'); switchTab('daftar'); })
-    .catch(e => alert(e.message));
-}
-
-async function renderAkun(vc) {
-  let maint = config.maintenance_mode || 'off';
-  try { const c = await api('/api/config'); maint = c.config.maintenance_mode; config = c.config; } catch(e){}
-  vc.innerHTML = `
-    <h2 class="text-2xl font-bold mb-4">Akun & Pengaturan</h2>
-    <div class="bg-white rounded-xl shadow-sm p-5 mb-4">
-      <div class="font-semibold">${esc(currentUser.nama_lengkap)}</div>
-      <div class="text-sm text-gray-500">Username: ${esc(currentUser.username)} · Role: ${esc(currentUser.role)}</div>
-    </div>
-    ${currentUser.role === 'admin' ? `
-    <div class="bg-white rounded-xl shadow-sm p-5">
-      <h3 class="font-semibold mb-3">Mode Maintenance</h3>
-      <div class="flex items-center gap-3">
-        <span>Status: <b id="maintStatus">${esc(maint)}</b></span>
-        <button onclick="toggleMaintenance()" class="px-4 py-2 rounded-lg ${maint==='on'?'bg-red-600':'bg-blue-600'} text-white text-sm">${maint==='on'?'Matikan':'Aktifkan'} Maintenance</button>
+async function renderModular(vc) {
+  vc.innerHTML = '<div class="text-gray-400">Memuat panel modular...</div>';
+  try {
+    await api('/api/plugins/scan').catch(() => ({}));
+    const data = await api('/api/plugins');
+    const plugins = data.data || [];
+    vc.innerHTML = `
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold">Panel Modular (Superadmin)</h2>
+        <button onclick="renderModular(document.getElementById('viewContainer'))" class="text-sm text-blue-600">↻ Refresh</button>
       </div>
-    </div>` : ''}
-    <div class="mt-4"><button onclick="logout()" class="px-4 py-2 rounded-lg border text-red-600">Logout</button></div>`;
+      ${plugins.length === 0 ? '<div class="text-gray-400">Tidak ada plugin. Tambahkan folder ke /plugins lalu klik Scan.</div>' : ''}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        ${plugins.map(p => `
+          <div class="bg-white rounded-xl shadow-sm p-5">
+            <div class="flex items-start justify-between gap-2">
+              <div>
+                <div class="font-semibold text-gray-900">${esc(p.name)} <span class="text-xs text-gray-400">v${esc(p.version || '-')}</span></div>
+                <div class="text-xs text-gray-500 mt-0.5">${esc(p.description || '')}</div>
+                <div class="text-xs text-gray-400 mt-1">slug: ${esc(p.slug)} · author: ${esc(p.author || '-')}</div>
+              </div>
+              <span class="px-2 py-1 rounded text-xs ${p.status === 'active' ? 'bg-green-100 text-green-700' : p.status === 'error' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}">${esc(p.status)}</span>
+            </div>
+            ${p.last_error ? `<div class="mt-2 text-xs text-red-600 break-words">Error: ${esc(p.last_error)}</div>` : ''}
+            <div class="mt-3 flex flex-wrap gap-2">
+              ${p.status !== 'active' ? `<button onclick="pluginAction('activate','${esc(p.slug)}')" class="px-3 py-1.5 rounded-lg bg-green-600 text-white text-sm">Aktifkan</button>` : `<button onclick="pluginAction('deactivate','${esc(p.slug)}')" class="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-sm">Nonaktifkan</button>`}
+              <button onclick="pluginAction('delete','${esc(p.slug)}')" class="px-3 py-1.5 rounded-lg bg-red-600 text-white text-sm">Hapus</button>
+              ${p.status === 'active' ? `<button onclick="switchTab('plugin:${esc(p.slug)}')" class="px-3 py-1.5 rounded-lg border text-sm">Buka</button>` : ''}
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="mt-6 text-xs text-gray-400">Plugin lokal terbaca dari folder <code>/plugins</code>. Tambah folder plugin lalu klik Refresh/Scan.</div>`;
+  } catch (e) {
+    vc.innerHTML = `<div class="text-red-600">Error: ${esc(e.message)}</div>`;
+  }
 }
 
-async function toggleMaintenance() {
-  const cur = config.maintenance_mode || 'off';
-  const next = cur === 'on' ? 'off' : 'on';
-  await api('/api/config', { method: 'PUT', body: JSON.stringify({ maintenance_mode: next }) });
-  config.maintenance_mode = next;
-  switchTab('akun');
+async function pluginAction(action, slug) {
+  try {
+    if (action === 'activate') await api('/api/plugins/' + slug + '/activate', { method: 'POST' });
+    else if (action === 'deactivate') await api('/api/plugins/' + slug + '/deactivate', { method: 'POST' });
+    else if (action === 'delete') { if (!confirm('Hapus plugin ' + slug + '?')) return; await api('/api/plugins/' + slug, { method: 'DELETE' }); }
+    await loadPluginHost();
+    renderModular(document.getElementById('viewContainer'));
+  } catch (e) { alert(e.message); }
+}
+window.pluginAction = pluginAction;
+
+async function renderPluginView(slug, vc) {
+  vc.innerHTML = '<div class="text-gray-400">Memuat plugin...</div>';
+  const globalName = window['Module_' + slug] ? 'Module_' + slug : 'Plugin_' + slug;
+  // wait a tick for script load
+  let tries = 0;
+  while (!window[globalName] && tries < 20) { await new Promise(r => setTimeout(r, 100)); tries++; }
+  const plugin = window[globalName];
+  if (!plugin || typeof plugin.render !== 'function') {
+    vc.innerHTML = `<div class="text-red-600">Plugin "${esc(slug)}" tidak menyediakan tampilan atau belum dimuat.</div>`;
+    return;
+  }
+  try { plugin.render(vc); } catch (e) { vc.innerHTML = `<div class="text-red-600">Error plugin: ${esc(e.message)}</div>`; }
 }
 
-async function logout() {
-  try { await api('/api/logout', { method: 'POST' }); } catch(e){}
-  window.location.href = '/login.html';
+async function renderDokumentasi(vc) {
+  vc.innerHTML = `
+    <div class="mb-4">
+      <h2 class="text-2xl font-bold">Dokumentasi</h2>
+      <p class="text-gray-500 text-sm">Panduan Backend, Frontend, dan Sistem Modular (superadmin).</p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <iframe src="/docs/documentation.html" title="Dokumentasi" class="w-full" style="height:80vh;border:0;"></iframe>
+    </div>`;
+}
+
+async function logout() { try { await api('/api/logout', { method: 'POST' }); } catch (e) {} window.location.href = '/login.html'; }
+window.logout = logout;
+
+async function trackPageView(page) {
+  try {
+    const sid = sessionStorage.getItem('an_session_id');
+    const res = await api('/api/plugins/analytics/track', { method: 'POST', body: JSON.stringify({ session_id: sid, page: page, event_type: 'page_view' }) });
+    if (res && res.session_id) sessionStorage.setItem('an_session_id', res.session_id);
+  } catch (e) {}
 }
 
 window.addEventListener('DOMContentLoaded', init);
 // allow searchPasien defined globally
-window.searchPasien = searchPasien;

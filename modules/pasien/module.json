@@ -1,0 +1,25 @@
+{
+  "name": "pasien",
+  "slug": "pasien",
+  "version": "1.0.0",
+  "description": "core module",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": {
+    "label": "Pasien",
+    "icon": "👥",
+    "order": 20
+  },
+  "events": [
+    {
+      "name": "before_save",
+      "description": "Sebelum data pasien disimpan"
+    },
+    {
+      "name": "after_save",
+      "description": "Setelah data pasien disimpan"
+    }
+  ]
+}

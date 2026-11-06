@@ -37,7 +37,7 @@
 
 ## 2. CLI Onboarding Wizard Specification (`bin/cli.js`)
 
-Perintah utama: `npx create-medrec-starter <project-name>`
+Perintah utama: `npx medrec-starter <project-name>`
 
 ### 2.1 Alur Kerja Wizard Interaktif
 1. **Inisialisasi & Verifikasi Naming:**

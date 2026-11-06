@@ -4,3 +4,4 @@ database.sqlite-*
 .env
 app-uji*/
 verify*/
+tmp_*.js

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-11-05T00:00:00.000Z" agent="OpenCode" version="24.0.0" type="device">
+  <diagram id="factory-method" name="Factory Method Class Diagram">
+    <mxGraphModel dx="1200" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="client" value="Client&lt;br&gt;+ main()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="490" y="40" width="140" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="creator" value="&lt;&lt;abstract&gt;&gt;&lt;br&gt;Creator&lt;br&gt;+ factoryMethod(): Product&lt;br&gt;+ someOperation()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="430" y="150" width="260" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cca" value="ConcreteCreatorA&lt;br&gt;+ factoryMethod(): Product" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="250" y="300" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ccb" value="ConcreteCreatorB&lt;br&gt;+ factoryMethod(): Product" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="650" y="300" width="220" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="product" value="&lt;&lt;interface&gt;&gt;&lt;br&gt;Product&lt;br&gt;+ operation()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="470" y="430" width="180" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cpa" value="ConcreteProductA&lt;br&gt;+ operation()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="270" y="560" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="cpb" value="ConcreteProductB&lt;br&gt;+ operation()" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="650" y="560" width="200" height="60" as="geometry"/>
+        </mxCell>
+
+        <!-- Client uses Creator -->
+        <mxCell id="e_client_creator" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=open;endFill=0;" edge="1" source="client" target="creator" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Creator inheritance -->
+        <mxCell id="e_creator_cca" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=0;" edge="1" source="creator" target="cca" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_creator_ccb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=0;" edge="1" source="creator" target="ccb" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Product realization -->
+        <mxCell id="e_product_cpa" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=block;endFill=0;" edge="1" source="product" target="cpa" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_product_cpb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=block;endFill=0;" edge="1" source="product" target="cpb" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Creator creates Product -->
+        <mxCell id="e_creator_product" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=open;" edge="1" source="creator" target="product" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Concrete creators create concrete products -->
+        <mxCell id="e_cca_cpa" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=open;" edge="1" source="cca" target="cpa" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e_ccb_cpb" value="creates" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;endArrow=open;" edge="1" source="ccb" target="cpb" parent="1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

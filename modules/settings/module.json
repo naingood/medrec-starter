@@ -1,0 +1,21 @@
+{
+  "name": "Settings",
+  "slug": "settings",
+  "version": "1.0.0",
+  "description": "Pengaturan aplikasi",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": true,
+  "menu": {
+    "label": "Settings",
+    "icon": "⚙️",
+    "order": 99
+  },
+  "events": [
+    {
+      "name": "before_toggle_maintenance",
+      "description": "Sebelum toggle maintenance"
+    }
+  ]
+}

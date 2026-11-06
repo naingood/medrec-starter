@@ -1,0 +1,21 @@
+{
+  "name": "Add Ons",
+  "slug": "addons",
+  "version": "1.0.0",
+  "description": "Daftar modul aktif dan hook/event yang disediakan",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": true,
+  "menu": {
+    "label": "Add Ons",
+    "icon": "🧩",
+    "order": 96
+  },
+  "events": [
+    {
+      "name": "addons.viewed",
+      "description": "Dipicu saat halaman Add Ons dibuka"
+    }
+  ]
+}

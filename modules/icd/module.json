@@ -1,0 +1,21 @@
+{
+  "name": "icd",
+  "slug": "icd",
+  "version": "1.0.0",
+  "description": "core module",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": {
+    "label": "ICD-10",
+    "icon": "🔍",
+    "order": 30
+  },
+  "events": [
+    {
+      "name": "before_add_icd",
+      "description": "Sebelum kode ICD ditambahkan"
+    }
+  ]
+}

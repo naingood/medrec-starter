@@ -1,0 +1,27 @@
+{
+  "name": "Notifikasi",
+  "slug": "notifikasi",
+  "version": "1.0.0",
+  "description": "Notifikasi in-app untuk event kunjungan (dibuat otomatis saat kunjungan baru / diperiksa).",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "permissions": [
+    "encounters.read",
+    "notifications.read"
+  ],
+  "menu": {
+    "label": "Notifikasi",
+    "icon": "🔔",
+    "order": 25
+  },
+  "hooks": [
+    "encounter.created",
+    "encounter.updated"
+  ],
+  "migrations": [
+    "migrations/001_init.sql"
+  ],
+  "config": {},
+  "core": false
+}

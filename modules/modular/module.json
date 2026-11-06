@@ -1,0 +1,15 @@
+{
+  "name": "modular",
+  "slug": "modular",
+  "version": "1.0.0",
+  "description": "core module",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": {
+    "label": "Modular",
+    "icon": "🧩",
+    "order": 95
+  }
+}

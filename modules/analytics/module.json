@@ -1,0 +1,12 @@
+{
+  "name": "Analitik",
+  "slug": "analytics",
+  "version": "1.0.0",
+  "description": "Analitik sederhana ala Google Analytics (superadmin only)",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": { "label": "Analitik", "icon": "📊", "order": 97 },
+  "migrations": ["migrations/001_init.sql"]
+}

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     nama_lengkap TEXT NOT NULL,
-    role TEXT CHECK(role IN ('admin', 'pendaftaran', 'dokter')) NOT NULL,
+    role TEXT CHECK(role IN ('superadmin', 'admin', 'pendaftaran', 'dokter')) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS users (
 INSERT OR IGNORE INTO users (id, username, password, nama_lengkap, role) VALUES 
 (1, 'admin', 'admin123', 'Dr. Aris, Sp.RM (Administrator)', 'admin'),
 (2, 'petugas', 'petugas123', 'Siti Rahma, A.Md.RMIK (Pendaftaran)', 'pendaftaran'),
-(3, 'dokter', 'dokter123', 'Dr. Budi Santoso (Dokter Pemeriksa)', 'dokter');
+(3, 'dokter', 'dokter123', 'Dr. Budi Santoso (Dokter Pemeriksa)', 'dokter'),
+(4, 'superadmin', 'superadmin123', 'Super Administrator Sistem', 'superadmin');
 
 
 -- 3. Tabel Master Data Pasien
@@ -87,3 +88,53 @@ CREATE TABLE IF NOT EXISTS encounters (
 INSERT OR IGNORE INTO encounters (patient_id, user_id, keluhan_utama, diagnosa_icd_code, tindakan, status) VALUES 
 (1, 3, 'Nyeri ulu hati dan mual sejak kemarin', 'K30', 'Diberi obat antasida dan istirahat', 'Selesai'),
 (2, 3, 'Kepala pusing dan tengkuk terasa berat', 'I10', 'Pemeriksaan tensi & edukasi pola makan', 'Selesai');
+
+-- 6. Tabel Registry Plugin Modular
+CREATE TABLE IF NOT EXISTS plugins (
+    slug TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    version TEXT,
+    description TEXT,
+    author TEXT,
+    status TEXT CHECK(status IN ('inactive', 'active', 'error')) DEFAULT 'inactive',
+    core INTEGER DEFAULT 0,
+    menu_active INTEGER DEFAULT 0,
+    installed_at DATETIME,
+    activated_at DATETIME,
+    deactivated_at DATETIME,
+    config TEXT,
+    last_error TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS plugin_migrations (
+    slug TEXT NOT NULL,
+    file TEXT NOT NULL,
+    applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (slug, file),
+    FOREIGN KEY (slug) REFERENCES plugins(slug) ON DELETE CASCADE
+);
+
+-- 7. Tabel Settings Aplikasi
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT OR IGNORE INTO settings (key, value) VALUES
+('app_name', 'Klinik Sehat Mandiri'),
+('base_url_endpoint', ''),
+('endpoint_active', '0');
+
+-- 8. Tabel Audit Log
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    aksi TEXT NOT NULL,
+    entitas TEXT,
+    entitas_id INTEGER,
+    detail TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);

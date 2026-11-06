@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dokumentasi MedRec Starter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .navlink { @apply block px-3 py-2 rounded-lg text-sm text-gray-700 hover:bg-blue-50; }
+    .navlink.active { @apply bg-blue-50 text-blue-600 font-semibold; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="max-w-6xl mx-auto p-6">
+    <header class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">Dokumentasi MedRec Starter</h1>
+      <p class="text-gray-500 mt-1">Panduan teknis untuk Backend, Frontend, dan Sistem Modular.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <!-- Sidebar -->
+      <aside class="md:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm p-4 sticky top-4">
+          <div class="font-semibold text-gray-900 mb-3">Daftar Isi</div>
+          <nav class="space-y-1">
+            <button type="button" class="navlink w-full text-left flex items-center justify-between" onclick="toggleBackendMenu()">
+              Backend <span id="backendArrow">▸</span>
+            </button>
+            <div id="backendSubmenu" class="ml-3 mt-1 space-y-1 border-l pl-2 hidden">
+              <a href="#backend" class="navlink text-xs block">Ringkasan</a>
+              <a href="#backend-auth" class="navlink text-xs block">Auth & Session</a>
+              <a href="#backend-rbac" class="navlink text-xs block">RBAC</a>
+              <a href="#backend-maintenance" class="navlink text-xs block">Maintenance</a>
+              <a href="#backend-crud" class="navlink text-xs block">CRUD</a>
+              <a href="#backend-settings" class="navlink text-xs block">Settings</a>
+              <a href="#backend-db" class="navlink text-xs block">Database</a>
+              <a href="#backend-moduleapi" class="navlink text-xs block">Modul API</a>
+              <a href="#backend-modulemanager" class="navlink text-xs block">Module Manager</a>
+            </div>
+            <button type="button" class="navlink w-full text-left flex items-center justify-between" onclick="toggleFrontendMenu()">
+              Frontend <span id="frontendArrow">▸</span>
+            </button>
+            <div id="frontendSubmenu" class="ml-3 mt-1 space-y-1 border-l pl-2 hidden">
+              <a href="#frontend" class="navlink text-xs block">Ringkasan</a>
+              <a href="#frontend-layout" class="navlink text-xs block">Layout</a>
+              <a href="#frontend-routing" class="navlink text-xs block">Routing</a>
+              <a href="#frontend-responsive" class="navlink text-xs block">Responsive</a>
+              <a href="#frontend-security" class="navlink text-xs block">Keamanan UI</a>
+            </div>
+            <a href="#rbac" class="navlink">RBAC</a>
+            <button type="button" class="navlink w-full text-left flex items-center justify-between" onclick="toggleModularMenu()">
+              Sistem Modular <span id="modularArrow">▸</span>
+            </button>
+            <div id="modularSubmenu" class="ml-3 mt-1 space-y-1 border-l pl-2 hidden">
+              <a href="#modular" class="navlink text-xs block">Ringkasan</a>
+            </div>
+            <button type="button" class="navlink w-full text-left flex items-center justify-between" onclick="toggleAddonsMenu()">
+              Add Ons <span id="addonsArrow">▸</span>
+            </button>
+            <div id="addonsSubmenu" class="ml-3 mt-1 space-y-1 border-l pl-2 hidden">
+              <a href="#addons" class="navlink text-xs block">Ringkasan</a>
+            </div>
+            <a href="#sdk" class="navlink">SDK Plugin</a>
+            <button type="button" class="navlink w-full text-left flex items-center justify-between" onclick="toggleHelperMenu()">
+              Helper Function <span id="helperArrow">▸</span>
+            </button>
+            <div id="helperSubmenu" class="ml-3 mt-1 space-y-2 border-l pl-2 hidden">
+              <div>
+                <div class="text-xs font-semibold text-gray-500 px-1">UI/UX</div>
+                <a href="#fn-tampilkanPopup" class="navlink text-xs block">tampilkanPopup</a>
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-gray-500 px-1">Validasi</div>
+                <a href="#fn-validasiNIK" class="navlink text-xs block">validasiNIK</a>
+                <a href="#fn-sanitizeInput" class="navlink text-xs block">sanitizeInput</a>
+                <a href="#fn-validasiICD" class="navlink text-xs block">validasiICD</a>
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-gray-500 px-1">Format &amp; Perhitungan</div>
+                <a href="#fn-hitungUmur" class="navlink text-xs block">hitungUmur</a>
+                <a href="#fn-formatTanggalIndo" class="navlink text-xs block">formatTanggalIndo</a>
+                <a href="#fn-labelStatusKunjungan" class="navlink text-xs block">labelStatusKunjungan</a>
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-gray-500 px-1">Keamanan &amp; Akses</div>
+                <a href="#fn-maskingNIK" class="navlink text-xs block">maskingNIK</a>
+                <a href="#fn-maskingTelepon" class="navlink text-xs block">maskingTelepon</a>
+                <a href="#fn-cekRole" class="navlink text-xs block">cekRole</a>
+                <a href="#fn-hashSensitive" class="navlink text-xs block">hashSensitive</a>
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-gray-500 px-1">Data &amp; API</div>
+                <a href="#fn-generateNoRM" class="navlink text-xs block">generateNoRM</a>
+                <a href="#fn-buildPagination" class="navlink text-xs block">buildPagination</a>
+                <a href="#fn-formatResponse" class="navlink text-xs block">formatResponse</a>
+              </div>
+              <div>
+                <div class="text-xs font-semibold text-gray-500 px-1">Audit</div>
+                <a href="#fn-auditLog" class="navlink text-xs block">auditLog</a>
+              </div>
+            </div>
+            <a href="#deploy" class="navlink">Deployment</a>
+            <a href="#credits" class="navlink">Credits</a>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <main class="md:col-span-3 space-y-8">
+        <section id="backend" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Backend</h2>
+          <p class="text-gray-600 mb-3">Backend dibangun dengan Express.js + SQLite (better-sqlite3). Semua route API berada di <code>server.js</code> dan modul pendukung.</p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700">
+            <li id="backend-auth"><b>Auth & Session:</b> <code>/api/login</code>, <code>/api/logout</code>, <code>/api/me</code> berbasis express-session.</li>
+            <li id="backend-rbac"><b>RBAC:</b> middleware <code>checkRole([...])</code>, role: superadmin, admin, pendaftaran, dokter.</li>
+            <li id="backend-maintenance"><b>Maintenance:</b> <code>maintenanceGuard</code> memblokir akses non-admin saat mode on.</li>
+            <li id="backend-crud"><b>CRUD:</b> patients, icd10, encounters, config, stats.</li>
+            <li id="backend-settings"><b>Settings:</b> tabel <code>settings</code>, endpoint <code>/api/plugins/settings</code> (app name, base URL endpoint, toggle). Jika endpoint aktif, source of truth dari endpoint; jika fetch gagal tampil popup "Data belum tersedia".</li>
+            <li id="backend-db"><b>Database:</b> schema di <code>database/schema.sql</code>, migrasi di <code>database/migrate.js</code>.</li>
+            <li id="backend-moduleapi"><b>Modul API:</b> <code>/api/plugins/*</code> (superadmin only untuk manajemen modul opsional).</li>
+            <li id="backend-modulemanager"><b>Module Manager:</b> memindai folder <code>modules/</code>, auto-aktivasi modul core, migrasi &amp; rollback.</li>
+          </ul>
+          <pre class="bg-gray-100 rounded-lg p-3 mt-3 text-sm overflow-x-auto">npm start          # jalankan server
+npm test           # smoke test
+node database/migrate.js</pre>
+        </section>
+
+        <section id="frontend" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Frontend</h2>
+          <p class="text-gray-600 mb-3">SPA vanilla JS + Tailwind CSS (CDN). Entry: <code>public/index.html</code> dan <code>public/js/app.js</code>.</p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700">
+            <li id="frontend-layout"><b>Layout:</b> desktop sidebar + mobile bottom nav.</li>
+            <li id="frontend-routing"><b>Routing:</b> fungsi <code>switchTab(tab)</code> merender view ke <code>#viewContainer</code>.</li>
+            <li><b>View:</b> setiap menu bottom nav adalah modul (home, pasien, icd, daftar, akun, modular, dokumentasi, plugin:<slug>).</li>
+            <li><b>Module Host:</b> <code>renderModule()</code> memanggil <code>Module_<slug>.render()</code>.</li>
+            <li><b>Builder Pattern:</b> <code>ModuleBuilder</code> untuk menyusun fungsi, screen, dan add-on modul.</li>
+            <li id="frontend-responsive"><b>Responsive:</b> tabel (desktop) + kartu vertikal (mobile) untuk data list.</li>
+            <li id="frontend-security"><b>Keamanan UI:</b> superadmin hanya melihat panel modular & dokumentasi.</li>
+          </ul>
+          <p class="text-gray-600 mt-3">Ikon menu desktop menggunakan SVG (Heroicons outline) untuk tampilan modern.</p>
+        </section>
+        <section id="rbac" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">RBAC (Role-Based Access Control)</h2>
+          <p class="text-gray-600 mb-3">Sistem menggunakan role: <code>superadmin</code>, <code>admin</code>, <code>pendaftaran</code>, <code>dokter</code>. Middleware <code>checkRole([...])</code> membatasi akses endpoint.</p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700">
+            <li><b>superadmin:</b> akses penuh (bypass semua role check).</li>
+            <li><b>admin:</b> kelola pasien, ICD, kunjungan, config, plugin (kecuali delete core).</li>
+            <li><b>pendaftaran:</b> daftar pasien & kunjungan.</li>
+            <li><b>dokter:</b> periksa & diagnosa kunjungan.</li>
+            <li><b>Maintenance:</b> saat mode on, hanya admin/superadmin yang bisa akses.</li>
+            <li><b>Masking:</b> NIK dimasking untuk non-admin.</li>
+          </ul>
+<div id="fn-tampilkanPopup" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">tampilkanPopup(pesan, tipe)</div>
+            <p class="text-gray-600 text-sm mt-1">Popup alert reusable (toast/modal) dengan parameter pesan dan tipe dialog.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> alert() bawaan browser tidak konsisten dan tidak bisa dikustomisasi. Helper ini menyediakan popup dengan tipe info/success/warning/error/confirm.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Validasi gagal → tampilkanPopup('NIK harus 16 digit', 'error').</li>
+                <li>Konfirmasi hapus → const ok = await tampilkanPopup('Hapus data?', 'confirm').</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-tampilkanPopup')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-tampilkanPopup" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">tampilkanPopup('Data berhasil disimpan', 'success');
+tampilkanPopup('Terjadi kesalahan', 'error');
+
+const ok = await tampilkanPopup('Hapus data ini?', 'confirm');
+if (ok) { /* hapus */ }</pre>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Contoh Koding</h3>
+            <div class="relative">
+              <button onclick="copyCode('code-rbac')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-rbac" class="bg-gray-100 rounded-lg p-3 text-sm overflow-x-auto">function checkRole(allowedRoles) {
+  return (req, res, next) => {
+    if (!req.session || !req.session.user) return res.status(401).json({ error: 'Sesi berakhir.' });
+    const role = req.session.user.role;
+    if (role === 'superadmin' || allowedRoles.includes(role)) return next();
+    return res.status(403).json({ error: 'Akses Ditolak.' });
+  };
+}
+
+// Penggunaan di route
+app.post('/api/icd10', requireAuth, checkRole(['admin']), handler);</pre>
+            </div>
+          </div>
+        </section>
+
+
+        <section id="modular" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Sistem Modular</h2>
+          <p class="text-gray-600 mb-3">Hanya <b>Home</b> yang merupakan modul core. Semua modul lain adalah plugin modul. Plugin dapat mendaftar ke bottom menu, tetapi <b>default nonaktif</b>. Untuk menampilkan di bottom menu, aktifkan melalui pengaturan <b>Tampil Menu</b> (maksimal 4 menu). Modul berada di folder <code>modules/<slug>/</code>.</p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700">
+            <li><b>Discovery:</b> core memindai folder <code>modules/</code> saat boot &amp; tombol Scan.</li>
+            <li><b>Tampil Menu:</b> maksimal 4 plugin modul aktif di bottom nav; popup warning jika melebihi.</li>
+            <li><b>Lifecycle:</b> inactive → active (migrasi + register) → inactive (deactivate) → delete.</li>
+            <li><b>Hook:</b> action &amp; filter ala WordPress.</li>
+            <li><b>Rollback:</b> aktivasi gagal otomatis di-rollback.</li>
+            <li><b>Hooks/Events (Observer):</b> modul mendeklarasikan event (before_start, sebelum_simpan, dll.); add-on dapat subscribe via <code>ctx.on()</code>.</li>
+            <li><b>Menu Add Ons:</b> tabel modul aktif + hook/event yang disediakan (informasi). Add Ons adalah <b>core</b> dan menunya muncul di bawah Modular, hanya superadmin.</li>
+            <li><b>Panel:</b> khusus superadmin (tab Modular).</li>
+          </ul>
+        
+          <div class="mt-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Contoh Membuat Modul Sederhana</h3>
+            <div class="relative">
+              <button onclick="copyCode('code-modul-sederhana')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-modul-sederhana" class="bg-gray-100 rounded-lg p-3 text-sm overflow-x-auto">modules/hello-world/module.json
+{
+  "name": "Hello World",
+  "slug": "hello-world",
+  "version": "1.0.0",
+  "description": "Modul contoh",
+  "author": "Dev",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": { "label": "Hello", "icon": "👋", "order": 90 }
+}
+
+modules/hello-world/server.js
+module.exports = function register(ctx) {
+  ctx.registerRoute('GET', '/', (req, res) => {
+    res.json({ message: 'Halo dari modul!' });
+  });
+  ctx.registerMenu({ label: 'Hello', icon: '👋', order: 90 });
+  ctx.logger.info('hello-world registered');
+};
+
+modules/hello-world/client.js
+(function () {
+  async function api(url, opts) {
+    const res = await fetch(url, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts || {}));
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+  function render(container) {
+    container.innerHTML = '<div class="p-4">Memuat...</div>';
+    api('/api/plugins/hello-world')
+      .then(d => { container.innerHTML = '<div class="p-4 font-medium">' + (d.message || 'OK') + '</div>'; })
+      .catch(e => { container.innerHTML = '<div class="p-4 text-red-600">' + e.message + '</div>'; });
+  }
+  window.Module_hello_world = { render };
+})();</pre>
+            </div>
+          </div>
+</section>
+        <section id="addons" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Add Ons (Hook/Event)</h2>
+          <p class="text-gray-600 mb-3">Modul Add Ons adalah <b>core</b> dan menunya muncul di bawah Modular (khusus superadmin). Halaman ini menampilkan tabel modul aktif beserta hook/event yang disediakan, sehingga add-on dapat mengetahui trigger yang bisa di-subscribe.</p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700 mb-4">
+            <li><b>Observer Pattern:</b> modul mendeklarasikan event; add-on subscribe via <code>ctx.on()</code>.</li>
+            <li><b>Deklarasi:</b> manifest <code>events</code> atau <code>ctx.registerEvent(name, desc)</code>.</li>
+            <li><b>Picu:</b> <code>ctx.emit(eventName, payload)</code> memanggil semua subscriber.</li>
+            <li><b>Info:</b> Menu Add Ons hanya menampilkan informasi (read-only).</li>
+          </ul>
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Contoh Koding</h3>
+            <div class="relative">
+              <button onclick="copyCode('code-addons')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-addons" class="bg-gray-100 rounded-lg p-3 text-sm overflow-x-auto">// Modul A (mis. pasien) mendeklarasikan event
+ctx.registerEvent('sebelum_simpan', 'Sebelum data pasien disimpan');
+
+// Modul A memicu event
+ctx.emit('pasien.sebelum_simpan', { id: 123, nama: 'Dewi' });
+
+// Add-on B subscribe
+ctx.on('pasien.sebelum_simpan', (payload) => {
+  console.log('Add-on menerima:', payload);
+});
+
+// Manifest modul A
+// "events": [{ "name": "sebelum_simpan", "description": "Sebelum data pasien disimpan" }]</pre>
+            </div>
+          </div>
+        </section>
+
+
+        <section id="sdk" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">SDK Plugin</h2>
+          <p class="text-gray-600 mb-3">Lihat file <code>sdk.md</code> / <code>docs/sdk.md</code> untuk panduan lengkap. Modul disusun dengan Builder Pattern (fungsi, screen, add-on). Ringkasan:</p>
+          <pre class="bg-gray-100 rounded-lg p-3 text-sm overflow-x-auto">// Deklarasi event di manifest: "events": [{"name":"sebelum_simpan","description":"..."}]
+
+// Modul A menyediakan event
+ctx.registerEvent('sebelum_simpan', 'Sebelum data disimpan');
+ctx.emit('sebelum_simpan', { id: 123 });
+
+// Add-on B subscribe
+ctx.on('modulA.sebelum_simpan', (payload) => { /* ... */ });
+
+// Builder + add-on
+const mod = new ModuleBuilder('home')
+  .screen('main', (vc) => renderHome(vc))
+  .addon('welcome-banner', (m) => { /* wrap render */ })
+  .build();
+window.Module_home = mod;</pre>
+        </section>
+
+        <section id="helper" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Helper Function (Fase 1)</h2>
+          <p class="text-gray-600 mb-3">Toolkit helper reusable di folder <code>helpers/</code> untuk mempercepat pengembangan aplikasi rekam medis.</p>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700">
+            <li><b>Validasi:</b> <code>validasiNIK</code>, <code>sanitizeInput</code>, <code>validasiICD</code>.</li>
+            <li><b>Format:</b> <code>hitungUmur</code>, <code>formatTanggalIndo</code>, <code>labelStatusKunjungan</code>.</li>
+            <li><b>Keamanan:</b> <code>maskingNIK</code>, <code>maskingTelepon</code>, <code>cekRole</code>, <code>hashSensitive</code>.</li>
+            <li><b>Data &amp; API:</b> <code>generateNoRM</code>, <code>buildPagination</code>, <code>formatResponse</code>.</li>
+            <li><b>Audit:</b> <code>auditLog(db, userId, aksi, entitas, id, detail)</code> + tabel <code>audit_logs</code>.</li>
+          </ul>
+          <p class="text-gray-600 mt-3">Semua helper dibuat pure function (kecuali auditLog yang menerima db) agar mudah di-unit-test.</p>
+<div id="fn-validasiNIK" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">validasiNIK(nik)</div>
+            <p class="text-gray-600 text-sm mt-1">Validasi NIK 16 digit (angka, tidak semua nol).</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Input NIK dari user sering tidak konsisten (kurang digit, ada huruf, atau semua nol). Validasi ini memastikan NIK memenuhi format dasar sebelum disimpan ke database, mencegah data pasien tidak valid.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>NIK "3507123456780001" (16 digit) → valid.</li>
+                <li>NIK "123" (kurang digit) → tidak valid.</li>
+                <li>NIK "350712345678000a" (ada huruf) → tidak valid.</li>
+                <li>NIK "0000000000000000" (semua nol) → tidak valid.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+                <button onclick="copyCode('code-validasiNIK')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                <pre id="code-validasiNIK" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { validasiNIK } = require('./helpers/validasi');
+
+// Di route POST /api/patients
+if (!validasiNIK(nik)) {
+  return res.status(400).json({ error: 'NIK harus 16 digit angka.' });
+}
+
+// Contoh
+console.log(validasiNIK('3507123456780001')); // true
+console.log(validasiNIK('123')); // false
+console.log(validasiNIK('350712345678000a')); // false</pre>
+              </div>
+          </div>
+<div id="fn-sanitizeInput" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">sanitizeInput(str)</div>
+            <p class="text-gray-600 text-sm mt-1">Trim dan hapus tag HTML dari input.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Input dari user dapat mengandung spasi berlebih atau tag HTML yang berpotensi XSS. Helper ini membersihkan input sebelum diproses/disimpan.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Input "  <b>Halo</b>  " → "Halo".</li>
+                <li>Input "   " (spasi) → "".</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-sanitizeInput')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-sanitizeInput" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { sanitizeInput } = require('./helpers/validasi');
+
+const nama = sanitizeInput(req.body.nama_lengkap);
+if (!nama) return res.status(400).json({ error: 'Nama wajib diisi.' });
+
+console.log(sanitizeInput('  <b>Halo</b>  ')); // "Halo"</pre>
+            </div>
+          </div>
+
+          <div id="fn-validasiICD" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">validasiICD(code)</div>
+            <p class="text-gray-600 text-sm mt-1">Validasi format kode ICD-10 sederhana (A00 atau A00.0).</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Kode ICD yang dimasukkan admin bisa salah format (tanpa huruf/angka yang benar), sehingga data diagnosa tidak konsisten. Helper ini memastikan format dasar ICD-10.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>"J02.9" → valid.</li>
+                <li>"A00" → valid.</li>
+                <li>"123" → tidak valid.</li>
+                <li>"J0" → tidak valid.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-validasiICD')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-validasiICD" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { validasiICD } = require('./helpers/validasi');
+
+if (!validasiICD(code)) {
+  return res.status(400).json({ error: 'Kode ICD-10 tidak valid.' });
+}
+
+console.log(validasiICD('J02.9')); // true
+console.log(validasiICD('123')); // false</pre>
+            </div>
+          </div>
+
+<div id="fn-hitungUmur" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">hitungUmur(tanggalLahir)</div>
+            <p class="text-gray-600 text-sm mt-1">Hitung umur dalam tahun dan bulan.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Umur pasien sering dihitung manual dan tidak konsisten (tahun saja vs tahun+bulan). Helper ini menghitung umur akurat berdasarkan tanggal lahir.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Lahir 1995-05-14, hari ini 2026-11-04 → 31 tahun, 5 bulan.</li>
+                <li>Lahir hari ini → 0 tahun, 0 bulan.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-hitungUmur')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-hitungUmur" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { hitungUmur } = require('./helpers/format');
+
+const umur = hitungUmur(pasien.tanggal_lahir);
+console.log(umur); // { tahun: 31, bulan: 5 }
+
+// Tampilkan di UI
+const label = umur.tahun + ' th ' + umur.bulan + ' bl';</pre>
+            </div>
+          </div>
+
+          <div id="fn-formatTanggalIndo" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">formatTanggalIndo(date)</div>
+            <p class="text-gray-600 text-sm mt-1">Format tanggal ke "14 Mei 1995".</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Tanggal dari database (ISO) tidak nyaman dibaca user. Helper ini memformat ke Bahasa Indonesia.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>"1995-05-14" → "14 Mei 1995".</li>
+                <li>"2026-11-04" → "4 November 2026".</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-formatTanggalIndo')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-formatTanggalIndo" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { formatTanggalIndo } = require('./helpers/format');
+
+const tgl = formatTanggalIndo(pasien.tanggal_lahir);
+console.log(tgl); // "14 Mei 1995"</pre>
+            </div>
+          </div>
+
+          <div id="fn-labelStatusKunjungan" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">labelStatusKunjungan(status)</div>
+            <p class="text-gray-600 text-sm mt-1">Label + warna status kunjungan.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Status kunjungan (Pemeriksaan/Selesai/Dirujuk) perlu ditampilkan dengan label dan warna yang konsisten di UI.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>"Selesai" → { label: "Selesai", color: "green" }.</li>
+                <li>"Dirujuk" → { label: "Dirujuk", color: "red" }.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-labelStatusKunjungan')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-labelStatusKunjungan" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { labelStatusKunjungan } = require('./helpers/format');
+
+const st = labelStatusKunjungan(encounter.status);
+// st.label, st.color</pre>
+            </div>
+          </div>
+
+<div id="fn-maskingNIK" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">maskingNIK(nik)</div>
+            <p class="text-gray-600 text-sm mt-1">Masking NIK (4 digit awal + 12 bintang).</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> NIK adalah data sensitif. Menampilkan NIK penuh ke role non-admin berisiko privasi. Helper ini menyamarkan sebagian NIK.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>"3507123456780001" → "3507************".</li>
+                <li>NIK tidak 16 digit → dikembalikan apa adanya.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-maskingNIK')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-maskingNIK" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { maskingNIK } = require('./helpers/keamanan');
+
+// Di GET /api/patients
+const nik = role === 'admin' ? r.nik : maskingNIK(r.nik);</pre>
+            </div>
+          </div>
+
+          <div id="fn-maskingTelepon" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">maskingTelepon(no)</div>
+            <p class="text-gray-600 text-sm mt-1">Masking nomor telepon.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Nomor telepon pasien juga sensitif. Masking membantu privasi di tampilan list.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>"081234567890" → "0812****90".</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-maskingTelepon')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-maskingTelepon" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { maskingTelepon } = require('./helpers/keamanan');
+
+const tampil = maskingTelepon(pasien.telepon);</pre>
+            </div>
+          </div>
+
+          <div id="fn-cekRole" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">cekRole(user, roles)</div>
+            <p class="text-gray-600 text-sm mt-1">Cek apakah user memiliki salah satu role.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> RBAC tersebar di banyak route. Helper ini menyederhanakan pengecekan role dan konsisten (superadmin selalu lolos).</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>user role admin, roles ['admin','dokter'] → true.</li>
+                <li>user role dokter, roles ['admin'] → false.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-cekRole')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-cekRole" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { cekRole } = require('./helpers/keamanan');
+
+if (!cekRole(req.session.user, ['admin','dokter'])) {
+  return res.status(403).json({ error: 'Akses ditolak.' });
+}</pre>
+            </div>
+          </div>
+
+          <div id="fn-hashSensitive" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">hashSensitive(value)</div>
+            <p class="text-gray-600 text-sm mt-1">Hash SHA-256 untuk data sensitif (privasi).</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Untuk analitik/audit, kadang perlu menyimpan identitas tanpa menyimpan data asli. Hash membantu privasi.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Hash NIK sebelum disimpan di log analitik.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-hashSensitive')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-hashSensitive" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { hashSensitive } = require('./helpers/keamanan');
+
+const nikHash = hashSensitive(pasien.nik);</pre>
+            </div>
+          </div>
+
+<div id="fn-generateNoRM" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">generateNoRM(lastId)</div>
+            <p class="text-gray-600 text-sm mt-1">Generate No RM dari id terakhir.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> No RM harus konsisten dan unik. Helper ini membuat No RM dari id terakhir agar tidak bentrok.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>lastId 2 → "RM-000103".</li>
+                <li>lastId 0 → "RM-000101".</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-generateNoRM')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-generateNoRM" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { generateNoRM } = require('./helpers/data');
+
+const no_rm = generateNoRM(lastId);</pre>
+            </div>
+          </div>
+
+          <div id="fn-buildPagination" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">buildPagination(params)</div>
+            <p class="text-gray-600 text-sm mt-1">Bangun limit/offset/search dari query params.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Pagination query sering diulang di banyak route. Helper ini menstandarkan page/limit/offset/search.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>page=2, limit=10, search="dewi" → offset 10.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-buildPagination')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-buildPagination" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { buildPagination } = require('./helpers/data');
+
+const { page, limit, offset, search } = buildPagination(req.query);</pre>
+            </div>
+          </div>
+
+          <div id="fn-formatResponse" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">formatResponse(res, status, data, message)</div>
+            <p class="text-gray-600 text-sm mt-1">Response API standar { success, data, message }.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Format response API tidak konsisten antar route. Helper ini menyamakan struktur.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>status 200 → { success: true, data, message }.</li>
+                <li>status 400 → { success: false, data: null, message }.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-formatResponse')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-formatResponse" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { formatResponse } = require('./helpers/data');
+
+formatResponse(res, 200, { id: 1 }, 'OK');</pre>
+            </div>
+          </div>
+
+<div id="fn-auditLog" class="mt-6 border rounded-lg p-4">
+            <div class="font-mono text-sm font-semibold text-blue-600">auditLog(db, userId, aksi, entitas, entitasId, detail)</div>
+            <p class="text-gray-600 text-sm mt-1">Catat audit trail ke tabel audit_logs.</p>
+            <div class="mt-3 space-y-2 text-sm text-gray-700">
+              <p><b>Masalah yang dipecahkan:</b> Tidak ada jejak siapa melakukan apa dan kapan. Audit log membantu troubleshooting dan kepatuhan.</p>
+              <p><b>Contoh kasus:</b></p>
+              <ul class="list-disc pl-5 space-y-1">
+                <li>Saat pasien baru dibuat, catat CREATE patients.</li>
+                <li>Saat kunjungan diperiksa, catat UPDATE encounters.</li>
+              </ul>
+              <p><b>Contoh penggunaan:</b></p>
+            </div>
+            <div class="relative">
+              <button onclick="copyCode('code-auditLog')" class="absolute top-2 right-2 bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+              <pre id="code-auditLog" class="bg-gray-100 rounded-lg p-3 mt-2 text-sm overflow-x-auto">const { auditLog } = require('./helpers/audit');
+
+auditLog(db, req.session.user.id, 'CREATE', 'patients', info.lastInsertRowid, { no_rm });
+
+// Contoh lain
+auditLog(db, req.session.user.id, 'UPDATE', 'encounters', id, { status: 'Selesai' });</pre>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Contoh Koding</h3>
+            <pre class="bg-gray-100 rounded-lg p-3 text-sm overflow-x-auto">const { validasiNIK } = require('./helpers/validasi');
+const { hitungUmur, formatTanggalIndo } = require('./helpers/format');
+const { maskingNIK, cekRole } = require('./helpers/keamanan');
+const { generateNoRM, buildPagination } = require('./helpers/data');
+const { auditLog } = require('./helpers/audit');
+
+console.log(validasiNIK('3507123456780001')); // true
+console.log(hitungUmur('1995-05-14')); // { tahun, bulan }
+console.log(formatTanggalIndo('1995-05-14')); // "14 Mei 1995"
+console.log(maskingNIK('3507123456780001')); // "3507************"
+console.log(cekRole({ role: 'admin' }, ['admin','dokter'])); // true
+console.log(generateNoRM(2)); // "RM-000103"
+auditLog(db, req.session.user.id, 'CREATE', 'patients', 1, { no_rm: 'RM-000103' });</pre>
+          </div>
+        </section>
+
+        <section id="deploy" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Deployment</h2>
+          <ul class="list-disc pl-5 space-y-1 text-gray-700">
+            <li>Set <code>PORT</code>, <code>SESSION_SECRET</code>, <code>APP_NAME</code> di <code>.env</code>.</li>
+            <li>Jalankan <code>node database/migrate.js</code> untuk migrasi.</li>
+            <li>Gunakan reverse proxy (Nginx) untuk production.</li>
+            <li>Ganti Tailwind CDN dengan build production untuk performa.</li>
+          </ul>
+        </section>
+        <section id="credits" class="bg-white rounded-xl shadow-sm p-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-3">Credits</h2>
+          <p class="text-gray-600 mb-2"><b>Versi Aplikasi:</b> 1.0.0</p>
+          <p class="text-gray-600 mb-2"><b>Dibuat oleh:</b> Isnainy Nasrullah</p>
+          <p class="text-gray-600 mb-2"><b>Framework:</b> Express.js, SQLite, Tailwind CSS</p>
+          <p class="text-gray-500 text-sm mt-4">MedRec Starter — Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK.</p>
+        </section>
+
+      </main>
+    </div>
+  </div>
+<script>
+function showToast(msg) {
+  let t = document.getElementById('copyToast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'copyToast';
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#16a34a;color:#fff;padding:10px 14px;border-radius:8px;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,.15);opacity:0;transition:opacity .2s;z-index:9999;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2000);
+}
+function copyCode(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const text = el.innerText;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('Kode sudah disalin')).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showToast('Kode sudah disalin'); } catch (e) { showToast('Gagal menyalin'); }
+  document.body.removeChild(ta);
+}
+</script>
+<script>
+function toggleHelperMenu() {
+  const el = document.getElementById('helperSubmenu');
+  const arrow = document.getElementById('helperArrow');
+  if (!el) return;
+  el.classList.toggle('hidden');
+  if (arrow) arrow.textContent = el.classList.contains('hidden') ? '▸' : '▾';
+}
+// open helper submenu if URL hash targets a helper function
+if (location.hash && location.hash.startsWith('#fn-')) {
+  const el = document.getElementById('helperSubmenu');
+  const arrow = document.getElementById('helperArrow');
+  if (el) { el.classList.remove('hidden'); if (arrow) arrow.textContent = '▾'; }
+}
+</script>
+<script>
+function toggleBackendMenu() {
+  const el = document.getElementById('backendSubmenu');
+  const arrow = document.getElementById('backendArrow');
+  if (!el) return;
+  el.classList.toggle('hidden');
+  if (arrow) arrow.textContent = el.classList.contains('hidden') ? '\u25B8' : '\u25BE';
+}
+function toggleFrontendMenu() {
+  const el = document.getElementById('frontendSubmenu');
+  const arrow = document.getElementById('frontendArrow');
+  if (!el) return;
+  el.classList.toggle('hidden');
+  if (arrow) arrow.textContent = el.classList.contains('hidden') ? '\u25B8' : '\u25BE';
+}
+// open submenu if hash targets child
+if (location.hash && location.hash.startsWith('#backend-')) {
+  const el = document.getElementById('backendSubmenu'); const a = document.getElementById('backendArrow');
+  if (el) { el.classList.remove('hidden'); if (a) a.textContent = '\u25BE'; }
+}
+if (location.hash && location.hash.startsWith('#frontend-')) {
+  const el = document.getElementById('frontendSubmenu'); const a = document.getElementById('frontendArrow');
+  if (el) { el.classList.remove('hidden'); if (a) a.textContent = '\u25BE'; }
+}
+</script>
+<script>
+function toggleModularMenu() {
+  const el = document.getElementById('modularSubmenu');
+  const arrow = document.getElementById('modularArrow');
+  if (!el) return;
+  el.classList.toggle('hidden');
+  if (arrow) arrow.textContent = el.classList.contains('hidden') ? '\u25B8' : '\u25BE';
+}
+function toggleAddonsMenu() {
+  const el = document.getElementById('addonsSubmenu');
+  const arrow = document.getElementById('addonsArrow');
+  if (!el) return;
+  el.classList.toggle('hidden');
+  if (arrow) arrow.textContent = el.classList.contains('hidden') ? '\u25B8' : '\u25BE';
+}
+</script>
+</body>
+</html>

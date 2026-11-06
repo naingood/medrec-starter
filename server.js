@@ -5,6 +5,13 @@ const Database = require('better-sqlite3');
 const fs = require('fs');
 const path = require('path');
 
+const pm = require('./core/pluginManager');
+const hooks = require('./core/hooks');
+const { auditLog } = require('./helpers/audit');
+const { maskingNIK, cekRole } = require('./helpers/keamanan');
+const { validasiNIK, sanitizeInput } = require('./helpers/validasi');
+const { buildPagination, generateNoRM } = require('./helpers/data');
+
 const PORT = process.env.PORT || 3000;
 const DB_PATH = path.join(__dirname, 'database.sqlite');
 
@@ -27,22 +34,12 @@ if (process.env.APP_NAME) {
 db.prepare("INSERT OR IGNORE INTO config (key, value, description) VALUES ('developer_name', ?, 'Nama pengembang')").run(process.env.DEVELOPER_NAME || '');
 
 // --- Helpers ---
-function maskNIK(nik) {
-  if (!nik || nik.length !== 16) return nik;
-  return nik.substring(0, 4) + '************';
-}
 
 function escapeHTML(str) {
   if (str == null) return '';
   return String(str).replace(/[&<>'"]/g, (tag) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
 }
 
-function genNoRM() {
-  const row = db.prepare('SELECT MAX(id) AS m FROM patients').get();
-  const next = (row && row.m ? row.m : 0) + 1;
-  return 'RM-' + String(next + 100).padStart(6, '0');
-  // Note: keeps demo-style RM-000101+
-}
 
 // --- Express app ---
 const app = express();
@@ -75,7 +72,7 @@ function maintenanceGuard(req, res, next) {
   try { maintenance = db.prepare("SELECT value FROM config WHERE key = 'maintenance_mode'").get(); } catch (e) {}
   if (maintenance && maintenance.value === 'on') {
     const user = req.session ? req.session.user : null;
-    if (user && user.role === 'admin') return next();
+    if (user && (user.role === 'admin' || user.role === 'superadmin')) return next();
     if (req.path.startsWith('/api/')) {
       return res.status(503).json({ error: 'Sistem sedang dalam pemeliharaan (Maintenance Mode).' });
     }
@@ -92,7 +89,7 @@ function checkRole(allowedRoles) {
       return res.status(401).json({ error: 'Sesi telah berakhir. Silakan login kembali.' });
     }
     const userRole = req.session.user.role;
-    if (allowedRoles.includes(userRole)) return next();
+    if (userRole === 'superadmin' || allowedRoles.includes(userRole)) return next();
     return res.status(403).json({ error: 'Akses Ditolak: Anda tidak memiliki izin untuk melakukan tindakan ini.' });
   };
 }
@@ -106,6 +103,17 @@ function requireAuth(req, res, next) {
 
 // --- Static files ---
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/modules', express.static(path.join(__dirname, 'modules')));
+app.use('/plugins', express.static(path.join(__dirname, 'modules'))); // backward compat
+app.use('/docs', express.static(path.join(__dirname, 'docs')));
+
+// --- Plugin dispatch (active plugin routes) + management API ---
+const pluginRouter = require('./routes/plugins').createPluginRouter(db);
+app.use('/api/plugins', (req, res, next) => {
+  if (pm.dispatchPluginRoute(req, res)) return;
+  next();
+});
+app.use('/api/plugins', pluginRouter);
 
 // --- API Routes ---
 
@@ -144,10 +152,7 @@ app.put('/api/config', requireAuth, checkRole(['admin']), (req, res) => {
 
 // Patients
 app.get('/api/patients', requireAuth, (req, res) => {
-  const search = (req.query.search || '').trim();
-  const page = parseInt(req.query.page || '1', 10);
-  const limit = parseInt(req.query.limit || '20', 10);
-  const offset = (page - 1) * limit;
+  const { page, limit, offset, search } = buildPagination(req.query);
   let where = '';
   const params = [];
   if (search) {
@@ -160,21 +165,28 @@ app.get('/api/patients', requireAuth, (req, res) => {
   const role = req.session.user.role;
   const data = rows.map((r) => ({
     ...r,
-    nik: role === 'admin' ? r.nik : maskNIK(r.nik)
+    nik: role === 'admin' ? r.nik : maskingNIK(r.nik)
   }));
   res.json({ data, total, page, limit });
 });
 
 app.post('/api/patients', requireAuth, checkRole(['admin', 'pendaftaran']), (req, res) => {
-  const { nama_lengkap, nik, tanggal_lahir, jenis_kelamin, alamat } = req.body || {};
+  const body = req.body || {};
+  const nama_lengkap = sanitizeInput(body.nama_lengkap);
+  const nik = body.nik;
+  const tanggal_lahir = body.tanggal_lahir;
+  const jenis_kelamin = body.jenis_kelamin;
+  const alamat = sanitizeInput(body.alamat);
   if (!nama_lengkap || !nik || !tanggal_lahir || !jenis_kelamin || !alamat) {
     return res.status(400).json({ error: 'Semua field wajib diisi.' });
   }
-  if (!/^\d{16}$/.test(nik)) return res.status(400).json({ error: 'NIK harus 16 digit.' });
-  const no_rm = genNoRM();
+  if (!validasiNIK(nik)) return res.status(400).json({ error: 'NIK harus 16 digit.' });
+  const lastRow = db.prepare('SELECT MAX(id) AS m FROM patients').get();
+  const no_rm = generateNoRM(lastRow ? lastRow.m : 0);
   try {
     const info = db.prepare('INSERT INTO patients (no_rm, nama_lengkap, nik, tanggal_lahir, jenis_kelamin, alamat) VALUES (?,?,?,?,?,?)')
       .run(no_rm, nama_lengkap, nik, tanggal_lahir, jenis_kelamin, alamat);
+    auditLog(db, req.session.user.id, 'CREATE', 'patients', info.lastInsertRowid, { no_rm, nama_lengkap });
     res.status(201).json({ id: info.lastInsertRowid, no_rm });
   } catch (e) {
     if (String(e.message).includes('UNIQUE')) return res.status(409).json({ error: 'NIK atau No RM sudah terdaftar.' });
@@ -229,6 +241,7 @@ app.post('/api/encounters', requireAuth, checkRole(['admin', 'pendaftaran']), (r
   const userId = req.session.user.id;
   try {
     const info = db.prepare('INSERT INTO encounters (patient_id, user_id, keluhan_utama) VALUES (?,?,?)').run(patient_id, userId, keluhan_utama);
+    hooks.doAction('encounter.created', { id: info.lastInsertRowid, patient_id, keluhan_utama, user_id: userId });
     res.status(201).json({ id: info.lastInsertRowid });
   } catch (e) {
     res.status(500).json({ error: e.message });
@@ -243,6 +256,7 @@ app.put('/api/encounters/:id', requireAuth, checkRole(['admin', 'dokter']), (req
   const newStatus = status || 'Selesai';
   db.prepare('UPDATE encounters SET diagnosa_icd_code = ?, tindakan = ?, status = ? WHERE id = ?')
     .run(diagnosa_icd_code || null, tindakan || null, newStatus, id);
+  hooks.doAction('encounter.updated', { id, diagnosa_icd_code, tindakan, status: newStatus });
   res.json({ ok: true });
 });
 
@@ -261,6 +275,11 @@ app.get('*', (req, res) => {
   if (fs.existsSync(file)) return res.sendFile(file);
   res.status(404).send('Not found');
 });
+
+// --- Plugin system boot ---
+pm.ensurePluginDir();
+pm.discoverPlugins(db);
+pm.loadActivePlugins(db);
 
 app.listen(PORT, () => {
   console.log(`medrec-starter running at http://localhost:${PORT}`);

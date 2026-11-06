@@ -15,7 +15,7 @@ function ask(q, def) {
 async function main() {
   const projectName = process.argv[2];
   if (!projectName) {
-    console.error('Usage: npx create-medrec-starter <project-name>');
+    console.error('Usage: npx medrec-starter <project-name>');
     process.exit(1);
   }
   const target = path.resolve(process.cwd(), projectName);
@@ -32,11 +32,12 @@ async function main() {
   const template = path.resolve(__dirname, '..');
   fs.mkdirSync(target, { recursive: true });
 
-  // Copy template (exclude node_modules, .git, database.sqlite, docs maybe keep)
-  const exclude = new Set(['node_modules', '.git', 'database.sqlite', 'package-lock.json']);
+  // Copy template. Lewati artefak lokal & repositori induk supaya proyek baru bersih.
+  const exclude = new Set(['node_modules', '.git', '.env', 'package-lock.json', 'handoffs', '.github', 'tmp_simple.js']);
   function copyDir(src, dest) {
     for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
-      if (exclude.has(entry.name)) continue;
+      // database.sqlite, database.sqlite-shm, database.sqlite-wal
+      if (exclude.has(entry.name) || entry.name.startsWith('database.sqlite')) continue;
       const s = path.join(src, entry.name);
       const d = path.join(dest, entry.name);
       if (entry.isDirectory()) { fs.mkdirSync(d, { recursive: true }); copyDir(s, d); }
@@ -44,6 +45,19 @@ async function main() {
     }
   }
   copyDir(template, target);
+
+  // Samakan nama paket proyek baru dengan nama folder (template memakai nama paket CLI)
+  try {
+    const pkgPath = path.join(target, 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    pkg.name = projectName.toLowerCase().replace(/[^a-z0-9._-]+/g, '-');
+    pkg.author = devName;
+    delete pkg.bin;
+    delete pkg.repository;
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+  } catch (e) {
+    console.warn('⚠️  Tidak bisa menyesuaikan package.json: ' + e.message);
+  }
 
   // Write .env (APP_NAME/DEVELOPER_NAME disuntikkan ke DB saat server pertama kali jalan)
   fs.writeFileSync(path.join(target, '.env'), `PORT=${port}\nSESSION_SECRET=medrec-starter-secret-change-me\nAPP_NAME=${appName}\nDEVELOPER_NAME=${devName}\n`);

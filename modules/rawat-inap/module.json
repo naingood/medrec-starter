@@ -1,0 +1,18 @@
+{
+  "name": "Rawat Inap",
+  "slug": "rawat-inap",
+  "version": "1.0.0",
+  "description": "Manajemen pasien rawat inap",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": { "label": "Rawat Inap", "icon": "🛏️", "order": 50 },
+  "events": [
+    { "name": "before_admit", "description": "Sebelum pasien diinapkan" },
+    { "name": "after_admit", "description": "Setelah pasien diinapkan" },
+    { "name": "before_discharge", "description": "Sebelum pasien dipulangkan" },
+    { "name": "after_discharge", "description": "Setelah pasien dipulangkan" }
+  ],
+  "migrations": ["migrations/001_rawat_inap.sql"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "dokumentasi",
+  "slug": "dokumentasi",
+  "version": "1.0.0",
+  "description": "core module",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": {
+    "label": "Dokumentasi",
+    "icon": "📚",
+    "order": 96
+  }
+}

@@ -25,7 +25,7 @@ Proyek `medrec-starter` memiliki dua skenario deployment utama:
 1. **GitHub Pages (Public Demo / Showcase):**
    * Menyajikan versi antarmuka (Frontend Vanilla JS + Tailwind CDN) berbasis *Mock Data* (tanpa memerlukan server Node.js aktif) untuk keperluan dokumentasi dan *preview* cepat bagi dosen/mahasiswa sebelum melakukan instalasi.
 2. **npm Registry (CLI Tool Installer):**
-   * Dipublikasikan sebagai paket CLI `medrec-starter` yang memungkinkan pengguna menjalankan perintah `npx create-medrec-starter` untuk memasang backend Express.js + SQLite di lingkungan lokal pengguna.
+   * Dipublikasikan sebagai paket CLI `medrec-starter` yang memungkinkan pengguna menjalankan perintah `npx medrec-starter` untuk memasang backend Express.js + SQLite di lingkungan lokal pengguna.
 
 ---
 
@@ -166,18 +166,18 @@ runMigrations();
 
 ## 4. Panduan Publikasi Paket CLI ke npm Registry
 
-Agar perintah `npx create-medrec-starter` dapat digunakan di mana saja oleh mahasiswa, paket dipublikasikan ke npm.
+Agar perintah `npx medrec-starter` dapat digunakan di mana saja oleh mahasiswa, paket dipublikasikan ke npm.
 
 ### 4.1 Persiapan `package.json`
 
 ```json
 {
   "name": "medrec-starter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK",
   "main": "server.js",
   "bin": {
-    "create-medrec-starter": "./bin/cli.js"
+    "medrec-starter": "./bin/cli.js"
   },
   "scripts": {
     "start": "node server.js",
@@ -217,5 +217,5 @@ Sebelum melakukan `git push` dan `npm publish`:
 - [ ] Jalankan seluruh *test plan* (`test_plan.md`).
 - [ ] Naikkan nomor versi di `package.json` (mengikuti aturan *Semantic Versioning* `MAJOR.MINOR.PATCH`).
 - [ ] Pastikan file `schema.sql` dan folder `migrations/` sudah sinkron.
-- [ ] Uji instalasi CLI secara lokal: `npm install -g .` lalu jalankan `create-medrec-starter test-app`.
+- [ ] Uji instalasi CLI secara lokal: `npm install -g .` lalu jalankan `medrec-starter test-app`.
 - [ ] Push commit ke branch `main` untuk memicu deployment otomatis ke GitHub Pages.

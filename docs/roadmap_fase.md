@@ -51,7 +51,7 @@ Dokumen ini memecah pekerjaan "mewujudkan aplikasi" menjadi 5 fase dengan milest
 
 - M5.1 Test plan matrix (CLI/DB/SEC/API/UI) — status Pending, perlu eksekusi manual. 🔄
 - M5.2 GitHub Actions workflow `.github/workflows/deploy-gh-pages.yml`. ⏳
-- M5.3 Verifikasi `npm publish --dry-run`. ⏳
+- M5.3 Verifikasi `npm publish --dry-run`. ✅ (live: `medrec-starter@1.0.1`, 2026-11-06)
 - M5.4 Dokumen kosong: `business_requirements.md`, `scope.md`, `timeline.md`. ⏳
 - M5.5 Final review & tag versi 1.0.0. ⏳
 

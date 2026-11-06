@@ -1,0 +1,25 @@
+{
+  "name": "home",
+  "slug": "home",
+  "version": "1.0.0",
+  "description": "core module",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": true,
+  "menu": {
+    "label": "home",
+    "icon": "",
+    "order": 10
+  },
+  "events": [
+    {
+      "name": "before_start",
+      "description": "Sebelum modul beranda dimuat"
+    },
+    {
+      "name": "after_start",
+      "description": "Setelah modul beranda dimuat"
+    }
+  ]
+}

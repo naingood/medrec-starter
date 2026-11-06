@@ -1,0 +1,29 @@
+{
+  "name": "daftar",
+  "slug": "daftar",
+  "version": "1.0.0",
+  "description": "core module",
+  "author": "Tim MedRec Starter",
+  "main": "server.js",
+  "client": "client.js",
+  "core": false,
+  "menu": {
+    "label": "Pendaftaran",
+    "icon": "📋",
+    "order": 40
+  },
+  "events": [
+    {
+      "name": "before_register",
+      "description": "Sebelum kunjungan didaftarkan"
+    },
+    {
+      "name": "after_register",
+      "description": "Setelah kunjungan didaftarkan"
+    },
+    {
+      "name": "before_diagnosa",
+      "description": "Sebelum diagnosa disimpan"
+    }
+  ]
+}
