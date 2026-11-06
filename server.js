@@ -188,7 +188,7 @@ app.put('/api/config', requireAuth, checkRole(['admin']), (req, res) => {
 });
 
 // ==========================================
-// Endpoint Publik (tanpa login) — v2.0.0
+// Endpoint Publik (tanpa login) — v1.2.0
 // ==========================================
 
 // Daftar poli
@@ -278,7 +278,7 @@ app.post('/api/public/pesan', (req, res) => {
 });
 
 // ==========================================
-// Endpoint Staff (butuh login) — v2.0.0
+// Endpoint Staff (butuh login) — v1.2.0
 // ==========================================
 
 // Daftar pesan pasien (untuk petugas/admin/superadmin)

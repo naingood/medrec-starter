@@ -1,4 +1,4 @@
--- Migrasi v2.0.0: Tabel untuk fitur publik (pasien umum)
+-- Migrasi v1.2.0: Tabel untuk fitur publik (pasien umum)
 -- Tabel lama (users, patients, encounters, icd10, config, dll.) dipertahankan.
 
 -- 1. Master Data Poli / Klinik

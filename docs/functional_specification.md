@@ -147,7 +147,7 @@ Menyimpan riwayat kunjungan dan transaksi rekam medis pasien.
 | `POST` | `/api/encounters` | `admin`, `pendaftaran` | Mendaftarkan kunjungan pasien baru |
 | `PUT` | `/api/encounters/:id`| `admin`, `dokter` | Mengisi diagnosa (ICD-10), tindakan & selesaikan pelayanan |
 
-### 4.5 Endpoint Publik (Tanpa Login) — v2.0.0
+### 4.5 Endpoint Publik (Tanpa Login) — v1.2.0
 
 | Method | Endpoint | Deskripsi |
 | :--- | :--- | :--- |
@@ -158,7 +158,7 @@ Menyimpan riwayat kunjungan dan transaksi rekam medis pasien.
 | `GET` | `/api/public/antrian` | Antrian poli hari ini (status menunggu/dipanggil/selesai) |
 | `POST` | `/api/public/pesan` | Kirim pesan dari pasien ke petugas |
 
-### 4.6 Endpoint Staff (Butuh Login) — v2.0.0
+### 4.6 Endpoint Staff (Butuh Login) — v1.2.0
 
 | Method | Endpoint | Role | Deskripsi |
 | :--- | :--- | :--- | :--- |

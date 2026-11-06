@@ -194,7 +194,7 @@ function escapeHTML(str) {
 }
 ```
 
-### 3.4 Endpoint Publik (Tanpa Auth) — v2.0.0
+### 3.4 Endpoint Publik (Tanpa Auth) — v1.2.0
 
 Endpoint berikut sengaja **tidak memerlukan login** agar aplikasi bisa diakses oleh publik sebagai pendaftaran pasien. Semua validasi input dilakukan di backend sebelum menyimpan ke SQLite:
 

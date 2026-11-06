@@ -4,7 +4,7 @@ Riwayat perbaikan bug, terbaru di atas. Hanya entri yang sudah terverifikasi.
 
 ---
 
-### Fix #8 — Refactor Besar v2.0.0: Login Opsional, Akses Publik, & SQLite di `database/`
+### Fix #8 — Refactor Besar v1.2.0: Login Opsional, Akses Publik, & SQLite di `database/`
 
 | | |
 |---|---|
@@ -15,8 +15,8 @@ Riwayat perbaikan bug, terbaru di atas. Hanya entri yang sudah terverifikasi.
 | Fix | (1) Login jadi opsional — halaman beranda bisa diakses tanpa login; tombol Masuk di pojok kanan atas (modal). (2) Bottom nav publik: Beranda, Pendaftaran, Jadwal. (3) Endpoint publik: `/api/public/poli`, `/jadwal`, `/daftar`, `/antrian`, `/pesan`. (4) Endpoint staff: `/api/staff/pesan` + tandai dibaca. (5) SQLite pindah ke `database/database.sqlite` dengan migrasi otomatis dari lokasi lama. (6) Judul login mengikuti `APP_NAME` dari inisialisasi CLI via `/api/public-config`. (7) Tabel baru: `poli`, `jadwal_dokter`, `pendaftaran_pasien`, `antrian`, `pesan_pasien`. |
 | Verifikasi | `npm test` 14/14 lulus. Uji manual: akses tanpa login → beranda tampil; daftar pasien publik → No RM + antrian otomatis; kirim pesan → staff bisa lihat & tandai dibaca; judul login = nama klinik dari CLI. |
 | Pelajaran | Refactor besar harus dibarengi dengan tabel migrasi terpisah (`002_public_features.sql`) dan endpoint publik terpisah dari endpoint staff agar RBAC tidak bocor. |
-| Log Keyword | v2.0.0, login-opsional, publik, poli, jadwal, antrian, pesan-pasien, staff-pesan, database-folder, public-config |
-| Deploy | PENDING — siap publish 2.0.0 |
+| Log Keyword | v1.2.0, login-opsional, publik, poli, jadwal, antrian, pesan-pasien, staff-pesan, database-folder, public-config |
+| Deploy | PENDING — siap publish 1.2.0 |
 
 ---
 

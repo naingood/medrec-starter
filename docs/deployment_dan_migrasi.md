@@ -173,7 +173,7 @@ Agar perintah `npx medrec-starter` dapat digunakan di mana saja oleh mahasiswa, 
 ```json
 {
   "name": "medrec-starter",
-  "version": "2.0.0",
+  "version": "1.2.0",
   "description": "Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK",
   "main": "server.js",
   "bin": {
