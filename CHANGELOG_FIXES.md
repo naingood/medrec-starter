@@ -48,7 +48,7 @@ Riwayat perbaikan bug, terbaru di atas. Hanya entri yang sudah terverifikasi.
 | Verifikasi | 5 skenario: tanpa arg (exit 0), `.` di folder kosong (exit 0, `package.json` name = nama folder), `.` di folder berisi 1 file (exit 1 + pesan), nama folder sudah ada (exit 1), `--help` (exit 0). `npm test` 14/14. |
 | Pelajaran | Alat untuk pemula harus mengasumsikan README tidak dibaca; jalur yang salah harus menghasilkan pesan yang mengarahkan, bukan error mentah. |
 | Log Keyword | cli, npx, npm start, Missing script, scaffolder, folder kosong, UX pemula |
-| Deploy | PENDING — siap publish 1.0.2 |
+| Deploy | PENDING — siap publish 1.1.0 |
 
 ---
 
