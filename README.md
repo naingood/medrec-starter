@@ -82,6 +82,29 @@ npm start
 
 Butuh **Node.js 18 atau lebih baru**.
 
+Ingin membuat proyek langsung di folder yang sedang dibuka (harus kosong)? Jalankan
+`npx medrec-starter .` — tanpa nama folder, CLI akan menanyakan nama proyek lebih dulu.
+
+## Kesalahan umum saat pertama kali
+
+**`npm i medrec-starter` lalu `npm start` → `Missing script: "start"`.**
+
+`medrec-starter` adalah **generator**, bukan aplikasinya. `npm i` hanya memasang alat
+pembuatnya, jadi di folder itu belum ada aplikasi untuk dijalankan. Yang benar:
+
+```bash
+npx medrec-starter klinik-saya
+cd klinik-saya
+npm install
+npm start
+```
+
+**`Folder "..." sudah ada`.** Pilih nama lain, atau jalankan di folder kosong dengan
+`npx medrec-starter .`.
+
+**Tidak ingin ditanya macam-macam?** Semua pertanyaan punya default — cukup tekan Enter
+untuk memakai `Klinik Sehat Mandiri`, `Mahasiswa RMIK`, dan port `3000`.
+
 ## Akun demo
 
 | Peran | Username | Password |

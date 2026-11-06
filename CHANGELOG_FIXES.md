@@ -4,6 +4,22 @@ Riwayat perbaikan bug, terbaru di atas. Hanya entri yang sudah terverifikasi.
 
 ---
 
+### Fix #5 — Pemula terjebak: `npm i` + `npm start` gagal, dan CLI tidak bisa dipakai tanpa nama folder
+
+| | |
+|---|---|
+| Tanggal | 2026-11-06 |
+| File | `bin/cli.js`, `README.md` |
+| Masalah | `npx medrec-starter` tanpa argumen hanya mencetak usage lalu keluar; `npx medrec-starter .` ditolak "folder sudah ada"; pengguna yang menjalankan `npm i medrec-starter` lalu `npm start` melihat `Missing script: "start"` tanpa penjelasan. |
+| Akar | CLI hanya dirancang untuk satu pola: nama folder baru. Tidak ada mode interaktif, tidak ada dukungan folder saat ini, dan README tidak menyatakan bahwa paket ini generator. |
+| Fix | (1) tanpa argumen → tanya nama folder (default `klinik-saya`); (2) dukung `.` untuk scaffold di folder kosong (`.git` diabaikan) dengan pesan jelas bila tidak kosong; (3) `--help`; (4) README bagian "Kesalahan umum saat pertama kali". |
+| Verifikasi | 5 skenario: tanpa arg (exit 0), `.` di folder kosong (exit 0, `package.json` name = nama folder), `.` di folder berisi 1 file (exit 1 + pesan), nama folder sudah ada (exit 1), `--help` (exit 0). `npm test` 14/14. |
+| Pelajaran | Alat untuk pemula harus mengasumsikan README tidak dibaca; jalur yang salah harus menghasilkan pesan yang mengarahkan, bukan error mentah. |
+| Log Keyword | cli, npx, npm start, Missing script, scaffolder, folder kosong, UX pemula |
+| Deploy | PENDING — siap publish 1.0.2 |
+
+---
+
 ### Fix #4 — Publish ditolak `Cannot publish over previously published version "1.0.0"`
 
 | | |
