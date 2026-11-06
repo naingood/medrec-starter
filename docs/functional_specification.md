@@ -147,34 +147,53 @@ Menyimpan riwayat kunjungan dan transaksi rekam medis pasien.
 | `POST` | `/api/encounters` | `admin`, `pendaftaran` | Mendaftarkan kunjungan pasien baru |
 | `PUT` | `/api/encounters/:id`| `admin`, `dokter` | Mengisi diagnosa (ICD-10), tindakan & selesaikan pelayanan |
 
+### 4.5 Endpoint Publik (Tanpa Login) — v2.0.0
+
+| Method | Endpoint | Deskripsi |
+| :--- | :--- | :--- |
+| `GET` | `/api/public-config` | Mengambil nama aplikasi (`app_name`) dari konfigurasi |
+| `GET` | `/api/public/poli` | Daftar poli / klinik yang tersedia |
+| `GET` | `/api/public/jadwal` | Jadwal praktek dokter per poli dan hari |
+| `POST` | `/api/public/daftar` | Pendaftaran pasien publik (mendapat No RM & nomor antrian) |
+| `GET` | `/api/public/antrian` | Antrian poli hari ini (status menunggu/dipanggil/selesai) |
+| `POST` | `/api/public/pesan` | Kirim pesan dari pasien ke petugas |
+
+### 4.6 Endpoint Staff (Butuh Login) — v2.0.0
+
+| Method | Endpoint | Role | Deskripsi |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/staff/pesan` | superadmin, admin, pendaftaran, dokter | Daftar pesan masuk dari pasien |
+| `PUT` | `/api/staff/pesan/:id/baca` | superadmin, admin, pendaftaran, dokter | Tandai pesan sudah dibaca |
+
 ---
 
 ## 5. Frontend & UI/UX Specification
 
 ### 5.1 Responsive Layout System (Tailwind CSS CDN)
 * **Breakpoint Desktop (`>= 768px` / `md:`):**
-  * **Sidebar (Left Fixed 250px):** Logo klinik, Nama User/Role, Navigasi Menu Utama, Tombol Logout.
+  * **Top Bar (selalu visible):** Nama klinik di kiri, tombol Login/User di pojok kanan atas.
+  * **Sidebar (Left Fixed 250px):** Muncul **hanya setelah login staff**. Berisi logo, nama user, navigasi modul staff, tombol Keluar.
   * **Main Content Area (Right Full Width):** Header info ringkas, area kerja modul dinamis.
   * **Sticky Bottom Bar:** Tersembunyi (`hidden`).
 * **Breakpoint Mobile (`< 768px`):**
   * **Sidebar:** Tersembunyi (`hidden`).
   * **Top Bar:** Header ringkas berisi Nama Klinik & Status Login.
-  * **Main Content Area:** Full-screen scrollable dengan padding bottom `pb-20`.
-  * **Sticky Bottom Navigation Bar (Fixed Bottom 0, Full Width):** Menyajikan **5 Navigasi Utama** berbasis ikon SVG modern (Lucide Icons).
+  * **Main Content Area:** Full-screen scrollable dengan padding bottom `pb-28`.
+  * **Sticky Bottom Navigation Bar (Fixed Bottom 0, Full Width):** **3 Navigasi Utama**: Beranda, Pendaftaran, Jadwal.
 
-### 5.2 Alur 5 Sticky Bottom Menu (Mobile Native View)
+### 5.2 Alur Navigasi Bottom Menu (Mobile & Publik)
 
 ```
 +-------------------------------------------------------------+
-|  [ 🏠 Home ] [ 👥 Pasien ] [ 🔍 ICD ] [ 📋 Daftar ] [ ⚙️ Akun ] |
+|  [ 🏠 Beranda ] [ 📋 Pendaftaran ] [ 📅 Jadwal ]             |
 +-------------------------------------------------------------+
 ```
 
-1. **🏠 Home (Dashboard):** Rekap statistik total pasien hari ini, jumlah pendaftaran aktif, dan status sistem.
-2. **👥 Pasien:** List pasien dengan tombol cari cepat (by Nama/NIK/No RM) dan tombol FAB (Floating Action Button) Tambah Pasien.
-3. **🔍 ICD-10:** Utility pencarian interaktif untuk mencari deskripsi medis berdasarkan kode ICD-10 atau sebaliknya.
-4. **📋 Pendaftaran (Admission):** Form input cepat pendaftaran kunjungan pasien yang sudah terdaftar.
-5. **⚙️ Akun & Setting:** Informasi user yang login, opsi ganti password, dan khusus *Admin* terdapat *toggle switch* untuk **Mode Maintenance**.
+1. **🏠 Beranda:** Halaman publik dengan fasilitas klinik, daftar poli, jadwal dokter, dan antrian hari ini. Bisa diakses tanpa login.
+2. **📋 Pendaftaran:** Form pendaftaran pasien publik (nama, NIK opsional, poli, tanggal, keluhan). Mendapat No RM dan nomor antrian otomatis.
+3. **📅 Jadwal:** Jadwal praktek dokter per poli dan hari.
+
+Tombol **Masuk** (pada top bar pojok kanan atas) membuka modal login. Setelah login staff, sidebar desktop muncul dan panel staff (Pasien, ICD-10, Pendaftaran, Pesan Pasien, Pengaturan, Modular) dapat diakses.
 
 ---
 

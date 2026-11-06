@@ -46,6 +46,12 @@ if (fs.existsSync(schemaPath)) {
   db.exec(schemaSql);
 }
 
+// Jalankan migration runner untuk file .sql di database/migrations/
+const migratePath = path.join(__dirname, 'database', 'migrate.js');
+if (fs.existsSync(migratePath)) {
+  try { require(migratePath); } catch (e) { console.warn('[migrate] ' + e.message); }
+}
+
 // Inject nama klinik/pengembang dari .env (hasil CLI wizard) bila ada
 if (process.env.APP_NAME) {
   db.prepare("UPDATE config SET value = ? WHERE key = 'app_name'").run(process.env.APP_NAME);
@@ -84,6 +90,7 @@ function maintenanceGuard(req, res, next) {
     req.path === '/api/login' ||
     req.path === '/api/config' ||
     req.path === '/api/public-config' ||
+    req.path.startsWith('/api/public/') ||
     req.path.startsWith('/api/me')
   ) {
     return next();
@@ -178,6 +185,124 @@ app.put('/api/config', requireAuth, checkRole(['admin']), (req, res) => {
   if (app_name != null) db.prepare("UPDATE config SET value = ? WHERE key = 'app_name'").run(app_name);
   if (maintenance_mode != null) db.prepare("UPDATE config SET value = ? WHERE key = 'maintenance_mode'").run(maintenance_mode);
   res.json({ ok: true });
+});
+
+// ==========================================
+// Endpoint Publik (tanpa login) — v2.0.0
+// ==========================================
+
+// Daftar poli
+app.get('/api/public/poli', (req, res) => {
+  try {
+    const rows = db.prepare('SELECT id, kode, nama, lantai, keterangan FROM poli ORDER BY nama').all();
+    res.json({ data: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Jadwal dokter
+app.get('/api/public/jadwal', (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT j.id, j.nama_dokter, j.hari, j.jam_buka, j.jam_tutup, j.status,
+             p.nama AS nama_poli
+      FROM jadwal_dokter j
+      JOIN poli p ON p.id = j.poli_id
+      WHERE j.status = 'aktif'
+      ORDER BY p.nama, j.hari
+    `).all();
+    res.json({ data: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Pendaftaran pasien publik (tanpa login)
+app.post('/api/public/daftar', (req, res) => {
+  const body = req.body || {};
+  const { nama_lengkap, nik, poli_id, tanggal_kunjungan, keluhan } = body;
+  if (!nama_lengkap || !poli_id || !tanggal_kunjungan) {
+    return res.status(400).json({ error: 'Nama, poli, dan tanggal kunjungan wajib diisi.' });
+  }
+  try {
+    const info = db.prepare(
+      'INSERT INTO pendaftaran_pasien (nama_lengkap, nik, poli_id, tanggal_kunjungan, keluhan) VALUES (?,?,?,?,?)'
+    ).run(nama_lengkap, nik || null, poli_id, tanggal_kunjungan, keluhan || null);
+    const pendaftaranId = info.lastInsertRowid;
+
+    // Buat antrian otomatis untuk poli tujuan
+    const lastAntrian = db.prepare(
+      'SELECT MAX(nomor_antrian) AS m FROM antrian WHERE poli_id = ? AND date(created_at) = date("now")'
+    ).get(poli_id);
+    const nomorAntrian = (lastAntrian.m || 0) + 1;
+
+    db.prepare(
+      'INSERT INTO antrian (pendaftaran_id, poli_id, nomor_antrian, status) VALUES (?,?,?,"menunggu")'
+    ).run(pendaftaranId, poli_id, nomorAntrian);
+
+    res.status(201).json({ id: pendaftaranId, no_rm: 'RM-' + String(info.lastInsertRowid).padStart(6, '0'), nomor_antrian: nomorAntrian });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Antrian poli (untuk tampilan publik)
+app.get('/api/public/antrian', (req, res) => {
+  const { poli_id } = req.query;
+  try {
+    let where = 'WHERE date(a.created_at) = date("now")';
+    const params = [];
+    if (poli_id) { where += ' AND a.poli_id = ?'; params.push(poli_id); }
+    const rows = db.prepare(`
+      SELECT a.id, a.nomor_antrian, a.status, a.created_at,
+             p.nama_lengkap, p.no_rm,
+             pl.nama AS nama_poli
+      FROM antrian a
+      JOIN pendaftaran_pasien p ON p.id = a.pendaftaran_id
+      JOIN poli pl ON pl.id = a.poli_id
+      ${where}
+      ORDER BY a.nomor_antrian ASC
+    `).all(...params);
+    res.json({ data: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Kirim pesan pasien ke petugas (tanpa login)
+app.post('/api/public/pesan', (req, res) => {
+  const body = req.body || {};
+  const { nama_pengirim, no_hp, subjek, pesan } = body;
+  if (!nama_pengirim || !pesan) {
+    return res.status(400).json({ error: 'Nama dan pesan wajib diisi.' });
+  }
+  try {
+    const info = db.prepare(
+      'INSERT INTO pesan_pasien (nama_pengirim, no_hp, subjek, pesan) VALUES (?,?,?,?)'
+    ).run(nama_pengirim, no_hp || null, subjek || null, pesan);
+    res.status(201).json({ id: info.lastInsertRowid, status: 'belum_dibaca' });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ==========================================
+// Endpoint Staff (butuh login) — v2.0.0
+// ==========================================
+
+// Daftar pesan pasien (untuk petugas/admin/superadmin)
+app.get('/api/staff/pesan', requireAuth, checkRole(['superadmin', 'admin', 'pendaftaran', 'dokter']), (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT id, nama_pengirim, no_hp, subjek, pesan, status, created_at, dibaca_at
+      FROM pesan_pasien
+      ORDER BY CASE WHEN status = 'belum_dibaca' THEN 0 ELSE 1 END, created_at DESC
+    `).all();
+    res.json({ data: rows });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Tandai pesan sudah dibaca
+app.put('/api/staff/pesan/:id/baca', requireAuth, checkRole(['superadmin', 'admin', 'pendaftaran', 'dokter']), (req, res) => {
+  const id = req.params.id;
+  try {
+    const existing = db.prepare('SELECT id FROM pesan_pasien WHERE id = ?').get(id);
+    if (!existing) return res.status(404).json({ error: 'Pesan tidak ditemukan.' });
+    db.prepare("UPDATE pesan_pasien SET status = 'dibaca', dibaca_at = CURRENT_TIMESTAMP, petugas_id = ? WHERE id = ?")
+      .run(req.session.user.id, id);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // Patients

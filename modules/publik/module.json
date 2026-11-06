@@ -1,0 +1,13 @@
+{
+  "name": "Publik",
+  "slug": "publik",
+  "version": "2.0.0",
+  "description": "Halaman publik: beranda, pendaftaran pasien, jadwal dokter, dan antrian poli",
+  "main": "server.js",
+  "client": "client.js",
+  "menu": { "label": "Publik", "icon": "🏠", "order": 1 },
+  "permissions": [],
+  "hooks": [],
+  "migrations": [],
+  "config": {}
+}

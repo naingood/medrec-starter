@@ -10,7 +10,8 @@ Dokumen ini memuat skenario perencanaan pengujian (*Test Cases*) untuk memastika
 2. **Database & Schema Test (DB)** – Pengujian inisialisasi tabel SQLite & seed data bawaan.
 3. **Middleware & Security Test (SEC)** – Pengujian fitur RBAC (Hak Akses) & Mode Maintenance.
 4. **Backend API Test (API)** – Pengujian endpoint RESTful CRUD.
-5. **Frontend UI/UX Test (UI)** – Pengujian antarmuka responsif Desktop (Sidebar) vs Mobile (5 Sticky Bottom Nav).
+5. **Public API Test (PUB)** – Pengujian endpoint publik untuk pasien umum (tanpa login).
+6. **Frontend UI/UX Test (UI)** – Pengujian antarmuka responsif Desktop (Sidebar) vs Mobile (3 Sticky Bottom Nav).
 
 ---
 
@@ -61,14 +62,30 @@ Dokumen ini memuat skenario perencanaan pengujian (*Test Cases*) untuk memastika
 
 ---
 
-### 5. Frontend Responsive UI/UX (Desktop vs Mobile)
+### 5. Public API Test (PUB) — Tanpa Login
 
 | Test ID | Item yang Diuji | Langkah Pengujian | Ekspektasi Hasil | Priority | Status |
 | :--- | :--- | :--- | :--- | :---: | :---: |
-| **UI-01** | Layout Mode Desktop (`>= 768px`) | Buka aplikasi di resolusi layar laptop/PC | Sidebar navigasi kiri tampil menetap, sticky bottom bar tersembunyi. | High | Pending |
-| **UI-02** | Layout Mode Mobile (`< 768px`) | Buka aplikasi di resolusi layar smartphone / DevTools mobile view | Sidebar tersembunyi, **5 Sticky Bottom Menu** tampil di bagian bawah layar. | High | Pending |
-| **UI-03** | Navigasi 5 Bottom Menu | Klik secara bergantian menu: Home, Pasien, ICD, Daftar, Akun di layar HP | Konten halaman berganti secara instan tanpa *reload* utuh (*SPA-like experience*). | High | Pending |
-| **UI-04** | Responsif Halaman Maintenance | Akses `/maintenance.html` di perangkat mobile dan desktop | Tampilan pesan pemeliharaan menyesuaikan ukuran layar dengan rapi. | Medium | Pending |
+| **PUB-01** | Akses Halaman Beranda Publik | Buka `http://localhost:3000` tanpa login | Halaman beranda publik tampil tanpa redirect ke login. | High | Pending |
+| **PUB-02** | Daftar Poli | Kirim `GET /api/public/poli` | Mengembalikan daftar poli (Minimal 4 poli seed data). | High | Pending |
+| **PUB-03** | Jadwal Dokter | Kirim `GET /api/public/jadwal` | Mengembalikan jadwal praktek dokter per poli dan hari. | High | Pending |
+| **PUB-04** | Pendaftaran Pasien Publik | Kirim `POST /api/public/daftar` dengan data valid | Pasien baru tersimpan, mendapatkan No RM dan nomor antrian otomatis. | High | Pending |
+| **PUB-05** | Antrian Poli | Kirim `GET /api/public/antrian` | Mengembalikan daftar antrian hari ini dengan status. | Medium | Pending |
+| **PUB-06** | Kirim Pesan Pasien | Kirim `POST /api/public/pesan` dengan data valid | Pesan tersimpan dengan status `belum_dibaca`. | High | Pending |
+| **PUB-07** | Daftar Pesan Staff | Login sebagai `petugas`, kirim `GET /api/staff/pesan` | Mengembalikan daftar pesan masuk dari pasien, urutan belum dibaca di atas. | High | Pending |
+| **PUB-08** | Tandai Pesan Dibaca | Login sebagai `petugas`, kirim `PUT /api/staff/pesan/:id/baca` | Status pesan berubah menjadi `dibaca`, petugas tercatat. | High | Pending |
+
+---
+
+### 6. Frontend Responsive UI/UX (Desktop vs Mobile)
+
+| Test ID | Item yang Diuji | Langkah Pengujian | Ekspektasi Hasil | Priority | Status |
+| :--- | :--- | :--- | :--- | :---: | :---: |
+| **UI-01** | Layout Mode Desktop (`>= 768px`) | Buka aplikasi di resolusi layar laptop/PC | Sidebar navigasi kiri tampil setelah login staff, sticky bottom bar tersembunyi. | High | Pending |
+| **UI-02** | Layout Mode Mobile (`< 768px`) | Buka aplikasi di resolusi layar smartphone / DevTools mobile view | Sidebar tersembunyi, **3 Sticky Bottom Menu** (Beranda, Pendaftaran, Jadwal) tampil di bagian bawah layar. | High | Pending |
+| **UI-03** | Navigasi 3 Bottom Menu | Klik secara bergantian menu: Beranda, Pendaftaran, Jadwal di layar HP | Konten halaman berganti secara instan tanpa *reload* utuh (*SPA-like experience*). | High | Pending |
+| **UI-04** | Login Top Bar | Buka aplikasi tanpa login, klik tombol "Masuk" di pojok kanan atas | Modal login muncul. Setelah login staff, sidebar desktop muncul dan panel staff accessible. | High | Pending |
+| **UI-05** | Responsif Halaman Maintenance | Akses `/maintenance.html` di perangkat mobile dan desktop | Tampilan pesan pemeliharaan menyesuaikan ukuran layar dengan rapi. | Medium | Pending |
 
 ---
 

@@ -105,6 +105,16 @@ npm start
 **Tidak ingin ditanya macam-macam?** Semua pertanyaan punya default — cukup tekan Enter
 untuk memakai `Klinik Sehat Mandiri`, `Mahasiswa RMIK`, dan port `3000`.
 
+## Cara pakai untuk publik (tanpa login)
+
+Buka <http://localhost:3000>. Halaman beranda bisa diakses siapa saja. Dari sana publik dapat:
+- Melihat daftar poli dan jadwal dokter
+- Mendaftar ke poli (mendapat No RM dan nomor antrian otomatis)
+- Melihat antrian poli hari ini
+- Mengirim pesan ke petugas
+
+Login (tombol di pojok kanan atas) hanya diperlukan untuk petugas/dokter/superadmin yang akan mengakses panel staff.
+
 ## Akun demo
 
 | Peran | Username | Password |
@@ -112,6 +122,7 @@ untuk memakai `Klinik Sehat Mandiri`, `Mahasiswa RMIK`, dan port `3000`.
 | Admin | `admin` | `admin123` |
 | Pendaftaran | `petugas` | `petugas123` |
 | Dokter | `dokter` | `dokter123` |
+| Superadmin | `superadmin` | `superadmin123` |
 
 Ganti password ini sebelum memakai aplikasi untuk apa pun selain belajar.
 
@@ -119,13 +130,16 @@ Ganti password ini sebelum memakai aplikasi untuk apa pun selain belajar.
 
 | Modul | Isi |
 |---|---|
-| Beranda | Statistik ringkas dan antrean kunjungan hari ini |
+| Beranda (publik) | Fasilitas klinik, daftar poli, jadwal dokter, antrian hari ini — bisa diakses tanpa login |
+| Pendaftaran (publik) | Daftar ke poli, dapatkan No RM dan nomor antrian otomatis |
+| Jadwal (publik) | Jadwal praktek dokter per poli dan hari |
+| Pesan Pasien (publik) | Kirim pesan ke petugas tanpa login |
 | Pasien | Daftar, pencarian, tambah pasien, NIK dimasking |
 | Pendaftaran | Daftar kunjungan, riwayat pasien, alur periksa |
 | Rawat Inap | Manajemen pasien rawat inap |
 | ICD-10 | Pencarian kode diagnosis dan penambahan kode (admin) |
 | Analitik | Statistik penggunaan sederhana (superadmin) |
-| Notifikasi | Notifikasi in-app saat kunjungan baru atau selesai diperiksa |
+| Pesan Pasien (staff) | Terima pesan dari pasien, tandai sudah dibaca, baca pesan |
 | Pengaturan | Nama aplikasi, mode maintenance, konfigurasi dasar |
 | Modular & Add-ons | Daftar modul aktif serta hook/event yang tersedia |
 | Dokumentasi | Dokumentasi internal aplikasi |

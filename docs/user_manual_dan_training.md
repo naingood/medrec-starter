@@ -46,8 +46,9 @@ Aplikasi membawa 3 akun bawaan (*seed data*) untuk simulasi peran di rumah sakit
 | Role | Username | Password Default | Hak Akses Utama |
 | :--- | :--- | :--- | :--- |
 | **Admin** | `admin` | `admin123` | Akses penuh, kelola ICD-10, kontrol Maintenance Mode. |
-| **Pendaftaran** | `petugas` | `petugas123` | Tambah/Cari Pasien, Daftarkan Kunjungan Berobat. |
-| **Dokter** | `dokter` | `dokter123` | Anamnesis, Input Kode ICD-10, Input Catatan Tindakan Medis. |
+| **Pendaftaran** | `petugas` | `petugas123` | Tambah/Cari Pasien, Daftarkan Kunjungan Berobat, baca pesan pasien. |
+| **Dokter** | `dokter` | `dokter123` | Anamnesis, Input Kode ICD-10, Input Catatan Tindakan Medis, baca pesan pasien. |
+| **Superadmin** | `superadmin` | `superadmin123` | Akses ke Panel Modular, kelola semua plugin, Settings. |
 
 ---
 
@@ -83,6 +84,21 @@ Aplikasi membawa 3 akun bawaan (*seed data*) untuk simulasi peran di rumah sakit
    * Geser *toggle switch* **Maintenance Mode** menjadi **ON**.
    * Pengguna non-admin yang sedang membuka aplikasi akan otomatis dialihkan ke halaman pemeliharaan (`/maintenance.html`).
    * Admin tetap dapat menggunakan aplikasi dan mematikan mode pemeliharaan kapan saja (kembali ke **OFF**).
+
+---
+
+### 2.4 Alur Pengguna Publik (Tanpa Login)
+
+Aplikasi ini juga dapat diakses oleh publik sebagai pendaftaran pasien. Halaman **Beranda** dapat diakses langsung di `http://localhost:3000` tanpa perlu login.
+
+Fitur yang tersedia untuk publik:
+1. **Lihat Fasilitas Klinik** — Daftar poli yang tersedia di klinik.
+2. **Lihat Jadwal Dokter** — Jadwal praktek dokter per poli dan hari.
+3. **Pendaftaran Pasien** — Isi formulir pendaftaran (nama, NIK opsional, pilih poli, tanggal kunjungan, keluhan). Sistem akan memberikan No RM dan nomor antrian otomatis.
+4. **Lihat Antrian Poli** — Lihat antrian pasien hari ini per poli.
+5. **Kirim Pesan ke Petugas** — Kirim pertanyaan, keluhan, atau masukan kepada petugas klinik.
+
+Login (tombol di pojok kanan atas) hanya diperlukan untuk petugas, dokter, dan admin yang akan mengakses panel staff.
 
 ---
 

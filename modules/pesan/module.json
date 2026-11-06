@@ -1,0 +1,13 @@
+{
+  "name": "Pesan Pasien",
+  "slug": "pesan",
+  "version": "2.0.0",
+  "description": "Pesan pasien ke petugas (publik: kirim, staff: terima & tandai dibaca)",
+  "main": "server.js",
+  "client": "client.js",
+  "menu": { "label": "Pesan Pasien", "icon": "💬", "order": 5 },
+  "permissions": [],
+  "hooks": [],
+  "migrations": [],
+  "config": {}
+}

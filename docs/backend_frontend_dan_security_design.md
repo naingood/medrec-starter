@@ -58,7 +58,8 @@ function maintenanceGuard(req, res, next) {
     req.path.startsWith('/icons') ||
     req.path === '/login' || 
     req.path === '/api/login' ||
-    req.path === '/api/config'
+    req.path === '/api/config' ||
+    req.path.startsWith('/api/public/')
   ) {
     return next();
   }
@@ -120,8 +121,8 @@ Frontend `medrec-starter` dirancang **Single Page Application (SPA) Sederhana** 
 
 #### B. Mobile View (`< 768px`)
 * **Header Bar Top:** Menampilkan nama klinik dan tombol profil ringkas.
-* **App-Like Content Area:** Padding bawah `pb-20` agar konten tidak tertutup bar navigasi bawah.
-* **Sticky Bottom Navigation (5 Sticky Bottom Menu):** Tetap menempel di dasar layar (`fixed bottom-0 left-0 right-0 z-50`).
+* **App-Like Content Area:** Padding bawah `pb-28` agar konten tidak tertutup bar navigasi bawah.
+* **Sticky Bottom Navigation (3 Sticky Bottom Menu):** Tetap menempel di dasar layar (`fixed bottom-0 left-0 right-0 z-50`). Hanya tiga menu: **Beranda**, **Pendaftaran**, dan **Jadwal** — semua bisa diakses tanpa login.
 
 ```html
 <!-- Struktur Navigasi Bawah Mobile (5 Sticky Bottom Menu) -->
@@ -192,6 +193,21 @@ function escapeHTML(str) {
   );
 }
 ```
+
+### 3.4 Endpoint Publik (Tanpa Auth) — v2.0.0
+
+Endpoint berikut sengaja **tidak memerlukan login** agar aplikasi bisa diakses oleh publik sebagai pendaftaran pasien. Semua validasi input dilakukan di backend sebelum menyimpan ke SQLite:
+
+| Endpoint | Method | Deskripsi |
+| :--- | :--- | :--- |
+| `/api/public-config` | `GET` | Nama aplikasi (`app_name`) untuk judul halaman login & beranda |
+| `/api/public/poli` | `GET` | Daftar poli / klinik tersedia |
+| `/api/public/jadwal` | `GET` | Jadwal praktek dokter per poli dan hari |
+| `/api/public/daftar` | `POST` | Pendaftaran pasien publik → No RM + nomor antrian otomatis |
+| `/api/public/antrian` | `GET` | Antrian poli hari ini |
+| `/api/public/pesan` | `POST` | Kirim pesan pasien ke petugas (status `belum_dibaca`) |
+
+Semua endpoint publik dikecualikan dari *Maintenance Guard* dan **tidak membuka akses ke data rekam medis internal** (tabel `patients`, `encounters` tetap terlindungi oleh `requireAuth` + `checkRole`).
 
 ---
 

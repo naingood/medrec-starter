@@ -4,7 +4,22 @@ Riwayat perbaikan bug, terbaru di atas. Hanya entri yang sudah terverifikasi.
 
 ---
 
-### Fix #7 — Judul halaman login tidak mengikuti nama aplikasi hasil inisiasi
+### Fix #8 — Refactor Besar v2.0.0: Login Opsional, Akses Publik, & SQLite di `database/`
+
+| | |
+|---|---|
+| Tanggal | 2026-11-06 |
+| File | `server.js`, `public/index.html`, `public/js/app.js`, `database/schema.sql`, `database/migrations/002_public_features.sql`, `modules/publik/*`, `modules/pesan/*`, `docs/*` |
+| Masalah | Aplikasi wajib login sebelum bisa diakses; tidak ada fitur publik untuk pasien umum; SQLite tersebar di root; nama aplikasi login tidak mengikuti inisialisasi CLI. |
+| Akar | Arsitektur v1.x dirancang hanya untuk panel staff (login paksa). Tidak ada endpoint publik, tidak ada tabel poli/antrian/pesan, dan login selalu menampilkan "MedRec Starter" statis. |
+| Fix | (1) Login jadi opsional — halaman beranda bisa diakses tanpa login; tombol Masuk di pojok kanan atas (modal). (2) Bottom nav publik: Beranda, Pendaftaran, Jadwal. (3) Endpoint publik: `/api/public/poli`, `/jadwal`, `/daftar`, `/antrian`, `/pesan`. (4) Endpoint staff: `/api/staff/pesan` + tandai dibaca. (5) SQLite pindah ke `database/database.sqlite` dengan migrasi otomatis dari lokasi lama. (6) Judul login mengikuti `APP_NAME` dari inisialisasi CLI via `/api/public-config`. (7) Tabel baru: `poli`, `jadwal_dokter`, `pendaftaran_pasien`, `antrian`, `pesan_pasien`. |
+| Verifikasi | `npm test` 14/14 lulus. Uji manual: akses tanpa login → beranda tampil; daftar pasien publik → No RM + antrian otomatis; kirim pesan → staff bisa lihat & tandai dibaca; judul login = nama klinik dari CLI. |
+| Pelajaran | Refactor besar harus dibarengi dengan tabel migrasi terpisah (`002_public_features.sql`) dan endpoint publik terpisah dari endpoint staff agar RBAC tidak bocor. |
+| Log Keyword | v2.0.0, login-opsional, publik, poli, jadwal, antrian, pesan-pasien, staff-pesan, database-folder, public-config |
+| Deploy | PENDING — siap publish 2.0.0 |
+
+---
+
 
 | | |
 |---|---|
