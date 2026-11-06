@@ -211,6 +211,7 @@ async function renderBottomNavStaff() {
 function switchTab(tab) {
   if (currentUser && currentUser.role === 'superadmin' && ['home','pasien','icd','daftar'].includes(tab)) tab = 'modular';
   currentTab = tab;
+  window.currentTab = tab;
 
   // Highlight desktop navbtn
   document.querySelectorAll('.navbtn').forEach(b => {

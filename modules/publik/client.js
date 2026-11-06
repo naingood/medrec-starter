@@ -41,7 +41,7 @@
 
     vc.innerHTML = `
       <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">${esc(config && config.app_name ? config.app_name : 'MedRec Starter')}</h1>
+        <h1 class="text-3xl font-bold text-gray-900">${esc(appName)}</h1>
         <p class="text-gray-600 mt-1">Sistem informasi rekam medis sederhana — layanan publik untuk pendaftaran pasien.</p>
       </div>
 
