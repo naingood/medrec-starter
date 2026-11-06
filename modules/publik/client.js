@@ -9,7 +9,8 @@
 
   // ---------- HOME (beranda publik) ----------
   async function renderHome(vc) {
-    let poli = [], jadwal = [];
+    let poli = [], jadwal = [], appName = 'MedRec Starter';
+    try { const cfg = await api('/api/public-config'); if (cfg.app_name) appName = cfg.app_name; } catch (e) {}
     try { poli = (await api('/api/public/poli')).data || []; } catch (e) {}
     try { jadwal = (await api('/api/public/jadwal')).data || []; } catch (e) {}
 

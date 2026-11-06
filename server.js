@@ -229,12 +229,12 @@ app.post('/api/public/daftar', (req, res) => {
 
     // Buat antrian otomatis untuk poli tujuan
     const lastAntrian = db.prepare(
-      'SELECT MAX(nomor_antrian) AS m FROM antrian WHERE poli_id = ? AND date(created_at) = date("now")'
+      "SELECT MAX(nomor_antrian) AS m FROM antrian WHERE poli_id = ? AND date(created_at) = date('now')"
     ).get(poli_id);
     const nomorAntrian = (lastAntrian.m || 0) + 1;
 
     db.prepare(
-      'INSERT INTO antrian (pendaftaran_id, poli_id, nomor_antrian, status) VALUES (?,?,?,"menunggu")'
+      "INSERT INTO antrian (pendaftaran_id, poli_id, nomor_antrian, status) VALUES (?,?,?,'menunggu')"
     ).run(pendaftaranId, poli_id, nomorAntrian);
 
     res.status(201).json({ id: pendaftaranId, no_rm: 'RM-' + String(info.lastInsertRowid).padStart(6, '0'), nomor_antrian: nomorAntrian });
@@ -245,7 +245,7 @@ app.post('/api/public/daftar', (req, res) => {
 app.get('/api/public/antrian', (req, res) => {
   const { poli_id } = req.query;
   try {
-    let where = 'WHERE date(a.created_at) = date("now")';
+    let where = "WHERE date(a.created_at) = date('now')";
     const params = [];
     if (poli_id) { where += ' AND a.poli_id = ?'; params.push(poli_id); }
     const rows = db.prepare(`

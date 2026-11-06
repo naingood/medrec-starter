@@ -235,6 +235,10 @@ async function renderView(tab) {
   if (currentUser && currentUser.role === 'superadmin' && ['home','pasien','icd','daftar'].includes(tab)) {
     tab = 'modular'; currentTab = 'modular';
   }
+  // Publik (tanpa login): route home/daftar/jadwal/antrian ke modul publik
+  if (!currentUser && ['home','daftar','jadwal','antrian','pesan-publik'].includes(tab)) {
+    tab = 'publik';
+  }
   const vc = document.getElementById('viewContainer');
   try {
     if (tab === 'modular') await renderModular(vc);
