@@ -109,7 +109,7 @@ async function fetchPatients() {
 
 ## 3. Strategi Migrasi Database SQLite Lokal
 
-Basis data `database.sqlite` berada di komputer mahasiswa. Jika terdapat pembaruan skema dari repositori utama `medrec-starter`, alur migrasi dilakukan tanpa menghapus data yang sudah diinput oleh mahasiswa.
+Basis data `database/database.sqlite` berada di komputer mahasiswa. Jika terdapat pembaruan skema dari repositori utama `medrec-starter`, alur migrasi dilakukan tanpa menghapus data yang sudah diinput oleh mahasiswa.
 
 ### 3.1 Utilitas Runner Migrasi (`database/migrate.js`)
 
@@ -120,7 +120,7 @@ const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '../database.sqlite');
+const dbPath = path.join(__dirname, 'database.sqlite');
 const db = new sqlite3.Database(dbPath);
 
 function runMigrations() {
@@ -173,7 +173,7 @@ Agar perintah `npx medrec-starter` dapat digunakan di mana saja oleh mahasiswa, 
 ```json
 {
   "name": "medrec-starter",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK",
   "main": "server.js",
   "bin": {

@@ -29,7 +29,7 @@
                                     v
 +-----------------------------------+-----------------------------------+
 |                              DATABASE                                 |
-|                      SQLite3 (database.sqlite)                        |
+|                      SQLite3 (database/database.sqlite)                |
 +-----------------------------------------------------------------------+
 ```
 
@@ -48,7 +48,7 @@ Perintah utama: `npx medrec-starter <project-name>`
    * **Q3:** Port Aplikasi (Default: `3000`)
 3. **Eksekusi Otomatis:**
    * Menyalin template folder proyek ke direktori target.
-   * Membuat file `database.sqlite` dan mengeksekusi `schema.sql`.
+   * Membuat file `database/database.sqlite` dan mengeksekusi `schema.sql`.
    * Mengintegrasikan jawaban **Q1** ke dalam tabel `config` (`key: app_name`).
    * Menulis file `.env` lokal berdasarkan konfigurasi port.
 4. **Output Terminal:** Tampilkan pesan sukses dan instruksi untuk menjalankan `npm start`.
@@ -57,7 +57,7 @@ Perintah utama: `npx medrec-starter <project-name>`
 
 ## 3. Database Schema & Data Dictionary
 
-Database: **SQLite 3** (`database.sqlite`)
+Database: **SQLite 3** (`database/database.sqlite`)
 
 ### 3.1 Tabel `config`
 Menyimpan variabel pengaturan global aplikasi secara *key-value*.

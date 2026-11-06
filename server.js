@@ -13,9 +13,28 @@ const { validasiNIK, sanitizeInput } = require('./helpers/validasi');
 const { buildPagination, generateNoRM } = require('./helpers/data');
 
 const PORT = process.env.PORT || 3000;
-const DB_PATH = path.join(__dirname, 'database.sqlite');
+const DB_DIR = path.join(__dirname, 'database');
+const DB_PATH = path.join(DB_DIR, 'database.sqlite');
+const LEGACY_DB_PATH = path.join(__dirname, 'database.sqlite');
 
 // --- Database init ---
+// Semua berkas SQLite berada di folder database/ (database.sqlite, -wal, -shm).
+fs.mkdirSync(DB_DIR, { recursive: true });
+
+// Pindahkan otomatis basis data dari lokasi lama (v1.0.x) agar data tidak hilang.
+if (fs.existsSync(LEGACY_DB_PATH) && !fs.existsSync(DB_PATH)) {
+  try {
+    for (const suffix of ['', '-wal', '-shm']) {
+      if (fs.existsSync(LEGACY_DB_PATH + suffix)) {
+        fs.renameSync(LEGACY_DB_PATH + suffix, DB_PATH + suffix);
+      }
+    }
+    console.log('[db] Basis data lama dipindahkan ke database/database.sqlite');
+  } catch (e) {
+    console.warn('[db] Gagal memindahkan basis data lama: ' + e.message);
+  }
+}
+
 const db = new Database(DB_PATH);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
@@ -64,6 +83,7 @@ function maintenanceGuard(req, res, next) {
     req.path === '/maintenance.html' ||
     req.path === '/api/login' ||
     req.path === '/api/config' ||
+    req.path === '/api/public-config' ||
     req.path.startsWith('/api/me')
   ) {
     return next();
@@ -116,6 +136,16 @@ app.use('/api/plugins', (req, res, next) => {
 app.use('/api/plugins', pluginRouter);
 
 // --- API Routes ---
+
+// Konfigurasi publik (tanpa auth) — dipakai halaman login sebelum sesi terbentuk
+app.get('/api/public-config', (req, res) => {
+  let appName = 'MedRec Starter';
+  try {
+    const row = db.prepare("SELECT value FROM config WHERE key = 'app_name'").get();
+    if (row && row.value) appName = row.value;
+  } catch (e) {}
+  res.json({ app_name: appName });
+});
 
 // Auth
 app.post('/api/login', (req, res) => {

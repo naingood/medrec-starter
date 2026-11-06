@@ -39,7 +39,7 @@ Backend `medrec-starter` mengadopsi arsitektur **RESTful Monolith Ringan** yang 
 ```
 
 ### 1.1 Struktur Server (`server.js`)
-File `server.js` mengelola seluruh alur HTTP request, manajemen sesi (*session cookie*), serta koneksi ke basis data `database.sqlite`.
+File `server.js` mengelola seluruh alur HTTP request, manajemen sesi (*session cookie*), serta koneksi ke basis data `database/database.sqlite`.
 
 * **Session Management:** Menggunakan `express-session` dengan opsi cookie `httpOnly: true` dan `sameSite: 'strict'` untuk mencegah pencurian token via XSS.
 * **Database Access Layer:** Menggunakan driver `better-sqlite3` / `sqlite3` berbasis *Synchronous/Prepared Statements* untuk performa tinggi dan pencegahan *SQL Injection*.

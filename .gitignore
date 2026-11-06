@@ -1,6 +1,8 @@
 node_modules/
 database.sqlite
 database.sqlite-*
+database/database.sqlite
+database/database.sqlite-*
 .env
 app-uji*/
 verify*/

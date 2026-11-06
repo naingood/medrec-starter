@@ -6,7 +6,7 @@ let passed = 0, failed = 0;
 function assert(cond, msg) { if (cond) { passed++; console.log('  PASS: ' + msg); } else { failed++; console.log('  FAIL: ' + msg); } }
 
 // DB checks
-const dbPath = path.join(__dirname, '..', 'database.sqlite');
+const dbPath = path.join(__dirname, '..', 'database', 'database.sqlite');
 // ensure schema applied
 const schema = require('fs').readFileSync(path.join(__dirname, '..', 'database', 'schema.sql'), 'utf8');
 const db = new Database(dbPath);

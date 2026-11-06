@@ -96,7 +96,7 @@ Modul ini dirancang untuk dosen / fasilitator praktikum Informatika Kesehatan da
 +-------------------------------------------------------------------------+
 | Sesi 1: Setup & Pengenalan Arsitektur (30 Menit)                        |
 |   - Instalasi via CLI Wizard (npx medrec-starter)                    |
-|   - Eksplorasi folder project & SQLite (database.sqlite)                |
+|   - Eksplorasi folder project & SQLite (database/database.sqlite)       |
 |                                                                         |
 | Sesi 2: Simulasi Alur Rekam Medis Elektronik (45 Menit)                 |
 |   - Simulasi alur pendaftaran pasien (Role Petugas)                     |
@@ -117,6 +117,6 @@ Modul ini dirancang untuk dosen / fasilitator praktikum Informatika Kesehatan da
 * **Q: Bagaimana jika port 3000 sudah digunakan aplikasi lain?**
   * *A:* Ubah variabel port pada file `.env` (contoh: `PORT=8080`) atau tentukan port baru saat menjalankan CLI Wizard.
 * **Q: Di mana file database disimpan?**
-  * *A:* Seluruh data tersimpan lokal pada file `database.sqlite` di root folder proyek Anda.
+  * *A:* Seluruh data tersimpan lokal pada file `database/database.sqlite` di dalam folder proyek Anda.
 * **Q: Bagaimana cara me-reset database kembali ke data awal?**
-  * *A:* Hapus file `database.sqlite`, lalu jalankan `npm start`. Sistem akan otomatis membuat file basis data baru beserta *seed data* bawaan dari `schema.sql`.
+  * *A:* Hapus file `database/database.sqlite` (beserta `-wal`/`-shm` bila ada), lalu jalankan `npm start`. Sistem akan otomatis membuat file basis data baru beserta *seed data* bawaan dari `schema.sql`.

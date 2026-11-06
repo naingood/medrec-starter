@@ -23,7 +23,7 @@ Dokumen ini memuat skenario perencanaan pengujian (*Test Cases*) untuk memastika
 | **CLI-01** | Inisialisasi Proyek Baru | Jalankan `npx medrec-starter my-clinic` | Folder `my-clinic` berhasil dibuat beserta seluruh struktur folder internal. | High | Pending |
 | **CLI-02** | Validasi Folder Duplikat | Jalankan CLI pada nama folder yang sudah ada | CLI menghentikan proses dan menampilkan pesan peringatan folder sudah ada. | Medium | Pending |
 | **CLI-03** | Prompt Input Interaktif | Masukkan nama klinik khusus (contoh: "Klinik Sehat Pertiwi") | Nama klinik berhasil di-*inject* otomatis ke tabel `config` database SQLite. | High | Pending |
-| **CLI-04** | Auto Migration SQLite | Periksa direktori proyek setelah CLI selesai | File `database.sqlite` tercipta dan terisi tabel dari `schema.sql`. | High | Pending |
+| **CLI-04** | Auto Migration SQLite | Periksa direktori proyek setelah CLI selesai | File `database/database.sqlite` tercipta dan terisi tabel dari `schema.sql`. | High | Pending |
 
 ---
 

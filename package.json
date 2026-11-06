@@ -1,52 +1,54 @@
 {
-    "name":  "medrec-starter",
-    "version":  "1.0.2",
-    "description":  "Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK",
-    "main":  "server.js",
-    "bin":  {
-                "medrec-starter":  "bin/cli.js"
-            },
-    "scripts":  {
-                    "start":  "node server.js",
-                    "migrate":  "node database/migrate.js",
-                    "test":  "node tests/run.js && node tests/helpers.test.js"
-                },
-    "keywords":  [
-                     "rekam-medis",
-                     "health-informatics",
-                     "sqlite",
-                     "express",
-                     "boilerplate"
-                 ],
-    "author":  "Tim MedRec Starter",
-    "license":  "MIT",
-    "files":  [
-                  "bin/",
-                  "public/",
-                  "database/",
-                  "core/",
-                  "helpers/",
-                  "modules/",
-                  "routes/",
-                  "docs/",
-                  "tests/",
-                  "server.js",
-                  "README.md",
-                  "CONTRIBUTING.md",
-                  "LICENSE",
-                  ".env.example"
-              ],
-    "repository":  {
-                       "type":  "git",
-                       "url":  "git+https://github.com/naingood/medrec-starter.git"
-                   },
-    "engines":  {
-                    "node":  "\u003e=18"
-                },
-    "dependencies":  {
-                         "better-sqlite3":  "^11.0.0",
-                         "express":  "^4.21.0",
-                         "express-session":  "^1.18.0",
-                         "dotenv":  "^16.4.5"
-                     }
+    "name": "medrec-starter",
+    "version": "1.1.0",
+    "description": "Boilerplate Sistem Informasi Rekam Medis untuk Mahasiswa RMIK",
+    "main": "server.js",
+    "bin": {
+        "medrec-starter": "bin/cli.js"
+    },
+    "scripts": {
+        "start": "node server.js",
+        "migrate": "node database/migrate.js",
+        "test": "node tests/run.js && node tests/helpers.test.js"
+    },
+    "keywords": [
+        "rekam-medis",
+        "health-informatics",
+        "sqlite",
+        "express",
+        "boilerplate"
+    ],
+    "author": "Tim MedRec Starter",
+    "license": "MIT",
+    "files": [
+        "bin/",
+        "public/",
+        "database/migrate.js",
+        "database/schema.sql",
+        "database/migrations/",
+        "core/",
+        "helpers/",
+        "modules/",
+        "routes/",
+        "docs/",
+        "tests/",
+        "server.js",
+        "README.md",
+        "CONTRIBUTING.md",
+        "LICENSE",
+        ".env.example"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/naingood/medrec-starter.git"
+    },
+    "engines": {
+        "node": ">=18"
+    },
+    "dependencies": {
+        "better-sqlite3": "^11.0.0",
+        "express": "^4.21.0",
+        "express-session": "^1.18.0",
+        "dotenv": "^16.4.5"
+    }
 }

@@ -139,7 +139,7 @@ endpoint.
 .
 ├── server.js              # Express + session + pemuatan modul
 ├── bin/cli.js             # Wizard `medrec-starter`
-├── database/              # Skema, seed, dan migration runner
+├── database/              # Skema, seed, migration runner, dan database.sqlite (SQLite)
 ├── core/                  # pluginManager.js, hooks.js
 ├── helpers/               # validasi, masking, format, audit, keamanan
 ├── modules/<slug>/        # Satu folder = satu modul (module.json + server.js + client.js)

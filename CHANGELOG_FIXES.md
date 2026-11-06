@@ -4,6 +4,38 @@ Riwayat perbaikan bug, terbaru di atas. Hanya entri yang sudah terverifikasi.
 
 ---
 
+### Fix #7 — Judul halaman login tidak mengikuti nama aplikasi hasil inisiasi
+
+| | |
+|---|---|
+| Tanggal | 2026-11-06 |
+| File | `public/login.html`, `server.js` |
+| Masalah | Halaman login selalu menampilkan "MedRec Starter", meskipun pengguna mengisi nama klinik sendiri saat `npx medrec-starter`. Nama baru terlihat setelah login. |
+| Akar | `login.html` statis; `app_name` hanya diambil dari `/api/config` yang mewajibkan sesi (`requireAuth`), sehingga belum bisa dipakai sebelum login. |
+| Fix | Endpoint publik baru `GET /api/public-config` (tanpa auth, diizinkan saat maintenance) yang hanya mengembalikan `app_name`; `login.html` memakainya untuk `<title>` dan `<h1>`, dengan fallback "MedRec Starter" bila gagal. |
+| Verifikasi | Scaffold `klinik-jaya` dengan jawaban "Klinik Sehat Jaya" → `GET /api/public-config` = `{"app_name":"Klinik Sehat Jaya"}`; halaman login memuat `id="appName"` dan memanggil `/api/public-config`; `POST /api/login` 200. |
+| Pelajaran | Data yang dibutuhkan sebelum login harus punya endpoint publik tersendiri, jangan menumpang endpoint ber-sesi. |
+| Log Keyword | login, title, app_name, public-config, APP_NAME, maintenance |
+| Deploy | PENDING — siap publish 1.1.0 |
+
+---
+
+### Fix #6 — Berkas SQLite tersebar di root proyek, bukan di folder `database/`
+
+| | |
+|---|---|
+| Tanggal | 2026-11-06 |
+| File | `server.js`, `database/migrate.js`, `tests/run.js`, `.gitignore` |
+| Masalah | `database.sqlite`, `-wal`, dan `-shm` dibuat di root proyek, bercampur dengan kode; backup/pembersihan rawan salah sasaran. Setelah dipindah, `npm pack` ikut membawa `database/database.sqlite` (192,5 kB) karena `files` memuat seluruh folder `database/`. |
+| Akar | `DB_PATH` di-hardcode ke `path.join(__dirname, 'database.sqlite')` sejak versi awal, sementara skema & migrasi sudah berada di `database/`. Field `files` memakai folder, bukan berkas spesifik, sehingga berkas runtime ikut terbungkus. |
+| Fix | Semua berkas SQLite dipindah ke `database/database.sqlite` (plus pragma WAL). Ditambah pemindahan otomatis dari lokasi lama saat boot agar data pengguna v1.0.x tidak hilang; `.gitignore` menutup kedua lokasi; CLI tidak menyalin berkas DB; `files` diubah menjadi daftar eksplisit (`database/migrate.js`, `database/schema.sql`, `database/migrations/`). |
+| Verifikasi | Repo dengan DB lama: log `[db] Basis data lama dipindahkan ke database/database.sqlite`, root bersih, endpoint tetap normal. Scaffold baru: `database/` hanya berisi `migrate.js`, `migrations`, `schema.sql`; setelah `npm start` muncul `database/database.sqlite`; `npm test` 14/14; `node database/migrate.js` → "Tidak ada migrasi baru."; `npm pack --dry-run` → 76 file, **tanpa** `database.sqlite`. |
+| Pelajaran | Whitelist berupa folder akan menyeret berkas runtime; untuk paket yang punya state lokal, daftar berkas eksplisit lebih aman daripada `.npmignore` (yang kalah oleh `files`). |
+| Log Keyword | sqlite, database.sqlite, WAL, db path, migrate, backup, legacy move |
+| Deploy | PENDING — siap publish 1.1.0 |
+
+---
+
 ### Fix #5 — Pemula terjebak: `npm i` + `npm start` gagal, dan CLI tidak bisa dipakai tanpa nama folder
 
 | | |

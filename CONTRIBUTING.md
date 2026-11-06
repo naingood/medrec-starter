@@ -51,7 +51,7 @@ npm test       # pastikan semuanya lulus sebelum mengubah apa pun
 ```
 
 Butuh **Node.js 18+**. Database SQLite dibuat otomatis saat pertama kali dijalankan.
-Jangan commit `database.sqlite` atau `.env`.
+Jangan commit `database/database.sqlite` atau `.env`.
 
 ## Melaporkan bug
 
